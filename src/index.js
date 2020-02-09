@@ -8,7 +8,33 @@ var mapHeight = 800;
 var mapScale = 95000;  // map zoom
 var mapBorderW = 2;
 var mapBorderColor = 'black';
+var mapStrokeColor = 'black';
+var mapStrokeWidth = 0.5;
 var mapFillColor = 'steelblue';
+
+var mapNonFocusOpacity = 0.6 // non-mouseovered SD opacity
+var mouseTransDuration = 0; // warning: can be glitchy w/ quick mouseovers in succession
+
+// Mouse event functions: highlight SD on mouseover
+let mouseOver = function(d) {
+  d3.selectAll('.District')
+    .transition()
+    .duration(mouseTransDuration)
+    .style('opacity', mapNonFocusOpacity);
+  d3.select(this)
+    .transition()
+    .duration(mouseTransDuration)
+    .style('opacity', 1)
+}
+let mouseLeave = function(d) {
+  d3.selectAll('.District')
+    .transition()
+    .duration(mouseTransDuration)
+    .style('opacity', 1);
+  d3.select(this)
+    .transition()
+    .duration(mouseTransDuration)
+}
 
 // Path generator: projection centered on NYC and scaled
 var projection = d3.geoAlbers()
@@ -40,4 +66,11 @@ map.selectAll('path')
   .enter()
   .append('path')
   .attr('d', path)
-  .attr('fill', mapFillColor);
+  .attr('stroke', mapStrokeColor)
+  .attr('stroke-width', mapStrokeWidth)
+  .attr('fill', mapFillColor)
+  .attr('class', function(d) {
+    return 'District'
+  })
+  .on('mouseover', mouseOver)
+  .on('mouseleave', mouseLeave);
