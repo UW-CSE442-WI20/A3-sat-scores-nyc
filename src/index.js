@@ -2,9 +2,9 @@ import * as d3 from 'd3';
 import data from './school_districts.json';
 import scores from './scores.csv'
 
-let math = 'Average Score (SAT Math)';
-let reading = 'Average Score (SAT Reading)';
-let writing = 'Average Score (SAT Writing)';
+const math = 'Average Score (SAT Math)';
+const reading = 'Average Score (SAT Reading)';
+const writing = 'Average Score (SAT Writing)';
 
 var nycLoc = [40.7128, 74.0060]; // [long, lat]
 var mapOffset = [0, -0.04];  // map centering
@@ -16,6 +16,7 @@ var mapBorderColor = 'black';
 var mapStrokeColor = 'black';
 var mapStrokeWidth = 0.5;
 var mapFillColor = 'steelblue';
+var mapOpacity = 0.9;
 
 var pointRadius = 3;
 var pointColor = 'orange';
@@ -23,29 +24,33 @@ var pointStrokeColor = 'gray'
 var pointStrokeWidth = 0.25;
 var pointOpacity = 0.75;
 
-var mapNonFocusOpacity = 0.6 // non-mouseovered SD opacity
-var mouseTransDuration = 0; // warning: can be glitchy w/ quick mouseovers in succession
+var mapHoverColor = '#2b506e';
+var mapNonFocusOpacity = 0.6; // non-mouseovered SD opacity
+var mouseTransDuration = 100; // warning: can be glitchy w/ quick mouseovers in succession
 
 // Mouse event functions: highlight SD on mouseover
 let mouseOver = function(d) {
   d3.selectAll('.District')
-    .transition()
-    .duration(mouseTransDuration)
-    .style('opacity', mapNonFocusOpacity);
+      .transition()
+      .duration(mouseTransDuration)
+      .style('fill', mapFillColor)
+      .style('opacity', mapOpacity);
   d3.select(this)
-    .transition()
-    .duration(mouseTransDuration)
-    .style('opacity', 1)
-}
+      .transition()
+      .duration(mouseTransDuration)
+      .style('fill', mapHoverColor)
+      .style('opacity', mapOpacity);
+};
 let mouseLeave = function(d) {
   d3.selectAll('.District')
-    .transition()
-    .duration(mouseTransDuration)
-    .style('opacity', 1);
+      .transition()
+      .duration(mouseTransDuration)
+      .style('opacity', mapOpacity);
   d3.select(this)
-    .transition()
-    .duration(mouseTransDuration)
-}
+      .transition()
+      .style('fill', mapFillColor)
+      .duration(mouseTransDuration);
+};
 
 // Path generator: projection centered on NYC and scaled
 var projection = d3.geoAlbers()
@@ -83,6 +88,7 @@ map.selectAll('path')
     .attr('class', function(d) {
       return 'District'
     })
+    .style('opacity', mapOpacity)
     .on('mouseover', mouseOver)
     .on('mouseleave', mouseLeave);
 
@@ -115,6 +121,6 @@ d3.csv(scores).then(function(d) {
 
 // Remove this
 map.append('text')
-  .attr('x', 15)
-  .attr('y', 25)
-  .text('Hover a point to see school and average math/reading/writing SAT scores');
+    .attr('x', 15)
+    .attr('y', 25)
+    .text('Hover a point to see school and average math/reading/writing SAT scores');
