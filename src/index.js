@@ -8,9 +8,9 @@ const writing = 'Average Score (SAT Writing)';
 
 var nycLoc = [40.7128, 74.0060]; // [long, lat]
 var mapOffset = [0, -0.04];  // map centering
-var mapWidth = 800;
-var mapHeight = 800;
-var mapScale = 95000;  // map zoom
+var mapWidth = 600;
+var mapHeight = 600;
+var mapScale = 75000;  // map zoom
 var mapBorderW = 2;
 var mapBorderColor = 'black';
 var mapStrokeColor = 'black';
@@ -27,6 +27,10 @@ var pointOpacity = 0.75;
 var mapHoverColor = '#2b506e';
 var mapNonFocusOpacity = 0.6; // non-mouseovered SD opacity
 var mouseTransDuration = 100; // warning: can be glitchy w/ quick mouseovers in succession
+
+var mapZWidth = 350;
+var mapZHeight = 350;
+var mapZScale = 115000;
 
 // Mouse event functions: highlight SD on mouseover
 let mouseOver = function(d) {
@@ -54,10 +58,10 @@ let mouseLeave = function(d) {
 
 // Path generator: projection centered on NYC and scaled
 var projection = d3.geoAlbers()
-  .center([0, nycLoc[0] + mapOffset[0]])
-  .rotate([nycLoc[1] + mapOffset[1], 0])
-  .translate([mapWidth/2, mapHeight/2])
-  .scale([mapScale]);
+    .center([0, nycLoc[0] + mapOffset[0]])
+    .rotate([nycLoc[1] + mapOffset[1], 0])
+    .translate([mapWidth/2, mapHeight/2])
+    .scale([mapScale]);
 var path = d3.geoPath().projection(projection);
 
 // Create Map SVG element
@@ -118,6 +122,43 @@ d3.csv(scores).then(function(d) {
         return d['School Name'] + ': ' + d[math] + '/' + d[reading] + '/' + d[writing];
       });
 });
+
+// TESTING; CURRENT FOCUS: SD 31, STATEN ISLAND
+var statenSD = [40.58, 74.19]
+var zProjection = d3.geoAlbers()
+    .center([0, statenSD[0]])
+    .rotate([statenSD[1] + mapOffset[1], 0])
+    .translate([mapZWidth/2, mapZHeight/2])
+    .scale([mapZScale]);
+var zPath = d3.geoPath().projection(zProjection);
+var mapZ = d3.select('body')
+  .append('svg')
+    .attr('width', mapZWidth)
+    .attr('height', mapZHeight);
+mapZ.append('rect')
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr('height', mapZWidth)
+    .attr('width', mapZHeight)
+    .style('stroke', mapBorderColor)
+    .style('fill', 'none')
+    .style('stroke-width', mapBorderW);
+mapZ.selectAll('path')
+  .data(data.features)
+  .enter()
+  .append('path')
+    .filter(function(d) {
+      console.log(d)
+      return d.properties.SchoolDist === 31; // Staten SD
+    })
+    .attr('d', zPath)
+    .attr('stroke', mapStrokeColor)
+    .attr('stroke-width', mapStrokeWidth)
+    .attr('fill', mapFillColor)
+    .attr('class', function(d) {
+      return 'District'
+    })
+    .style('opacity', mapOpacity)
 
 // Remove this
 map.append('text')
