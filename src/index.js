@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import geoData from './school_districts.json';
 import scoresCsv from './scores.csv';
 import sdCentersCsv from './school_district_centers.csv';
+import { svg } from 'd3';
 
 const math = 'Average Score (SAT Math)';
 const reading = 'Average Score (SAT Reading)';
@@ -33,8 +34,7 @@ var mapHoverColor = '#2b506e';
 var mapNonFocusOpacity = 0.6; // non-mouseovered SD opacity
 var mouseTransDuration = 100; // warning: can be glitchy w/ quick mouseovers in succession
 
-var selected = false;
-var selectedSD = null;
+var selected = null; // Selected SD
 var selectedStrokeWidth = 1.6;
 var selectedFillColor = '#2b506e';
 
@@ -64,7 +64,7 @@ let mouseOver = function(d) { // Highlight SD on mouseover
   //     .style('opacity', mapOpacity);
   d3.select(this) // Highlight overview target SD
       .filter(function(d) { // Filter selected SD
-        return selected ? this != selectedSD : true;
+        return selected ? this != selected : true;
       })
       .transition()
       .duration(mouseTransDuration)
@@ -81,7 +81,7 @@ let mouseLeave = function(d) { // Unhighlight SD on mouse leave
   //     .transition()
   //     .duration(mouseTransDuration)
   //     .style('opacity', mapOpacity);
-  if (selectedSD != this) { // Do not de-highlight selected SD
+  if (selected != this) { // Do not de-highlight selected SD
     d3.select(this) // De-highlight overview target SD
         .transition()
         .style('fill', mapFillColor)
@@ -94,31 +94,35 @@ let mouseLeave = function(d) { // Unhighlight SD on mouse leave
       .style('opacity', mapOpacity);
 };
 let mouseClick = function(d) { // De/select SD on mouse click
-  if (this === selectedSD && selected) { // If targetting selected SD, unselect
-    d3.select(this)
+  if (this === selected) { // If targetting selected SD, unselect
+    d3.select(selected)
         .transition()
         .style('fill', mapFillColor)
         .attr('stroke-width', mapStrokeWidth)
         .duration(mouseTransDuration);
     mapZ.selectAll('path').remove();
     mapZ.selectAll('circle').remove();
-    selected = false;
+    selected = null;
   } else {
     if (selected) { // Unselect old selected SD
-      d3.select(selectedSD)
+      d3.select(selected)
           .transition()
           .style('fill', mapFillColor)
           .attr('stroke-width', mapStrokeWidth)
           .duration(mouseTransDuration);
+      mapZ.selectAll('path').remove();
+      mapZ.selectAll('circle').remove();
+      selected = null;
     }
-    d3.select(this) // Select target SD
-        .transition()
-        .style('fill', selectedFillColor)
-        .attr('stroke-width', selectedStrokeWidth)
-        .duration(mouseTransDuration);
-    selected = true;
-    selectedSD = this;
-    updateZMap(+this.id.substring(2)); // Update zoomed map
+    if (this.className.baseVal === 'District') {
+      d3.select(this) // Select target SD
+          .transition()
+          .style('fill', selectedFillColor)
+          .attr('stroke-width', selectedStrokeWidth)
+          .duration(mouseTransDuration);
+      selected = this;
+      updateZMap(+this.id.substring(2)); // Update zoomed map
+    }
   }
 }
 
@@ -143,9 +147,11 @@ var mapBorder = map.append('rect')
     .attr('y', 0)
     .attr('height', mapHeight)
     .attr('width', mapWidth)
+    .attr('pointer-events', 'all')
     .style('stroke', mapBorderColor)
     .style('fill', 'none')
-    .style('stroke-width', mapBorderW);
+    .style('stroke-width', mapBorderW)
+    .on('click', mouseClick);;
 
 // Create map of NYC SDs
 map.selectAll('path')
