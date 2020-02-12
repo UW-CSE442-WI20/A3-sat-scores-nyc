@@ -2,7 +2,6 @@ import * as d3 from 'd3';
 import geoData from './school_districts.json';
 import scoresCsv from './scores.csv';
 import sdCentersCsv from './school_district_centers.csv';
-import { svg } from 'd3';
 
 const math = 'Average Score (SAT Math)';
 const reading = 'Average Score (SAT Reading)';
@@ -246,8 +245,8 @@ let updateZMap = function(sd) {
     .data(scores)
     .enter()
     .append('circle')
-      .filter(function(d) { // Filter schools only in target SD (NOTE: LONG PROCESSING TIME, PERHAPS PRELOAD)
-        return d3.geoContains(districtGeos.get(sd), [d.Longitude, d.Latitude]);
+      .filter(function(d) { // Filter schools only in target SD
+        return +d.District === sd;
       })
       .attr('cx', function(d) {
         return zProjection([d.Longitude, d.Latitude])[0];
