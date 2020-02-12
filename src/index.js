@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
-import data from './school_districts.json';
-import scores from './scores.csv';
-import sdCenters from './school_district_centers.csv';
+import geoData from './school_districts.json';
+import scoresCsv from './scores.csv';
+import sdCentersCsv from './school_district_centers.csv';
 
 const math = 'Average Score (SAT Math)';
 const reading = 'Average Score (SAT Reading)';
@@ -42,8 +42,9 @@ var selectedSD = null;
 var selectedStrokeWidth = 2;
 var selectedFillColor = 'red';
 
-// Mouse event functions: highlight SDs on mouseover, select SD on mouseclick
-let mouseOver = function(d) {
+
+// MOUSE EVENTS ////////////////////////////////////////////////////////////////
+let mouseOver = function(d) { // Highlight SD on mouseover
   // d3.selectAll('.District') // Fade other SDs
   //     .transition()
   //     .duration(mouseTransDuration)
@@ -63,7 +64,7 @@ let mouseOver = function(d) {
       .style('fill', mapHoverColor)
       .style('opacity', mapOpacity);
 };
-let mouseLeave = function(d) {
+let mouseLeave = function(d) { // Unhighlight SD on mouse leave
   // d3.selectAll('.District') // Unfade other SDs
   //     .transition()
   //     .duration(mouseTransDuration)
@@ -80,7 +81,7 @@ let mouseLeave = function(d) {
       .style('fill', mapFillColor)
       .style('opacity', mapOpacity);
 };
-let mouseClick = function(d) {
+let mouseClick = function(d) { // De/select SD on mouse click
   if (this === selectedSD && selected) { // If targetting selected SD, unselect
     d3.select(this)
         .transition()
@@ -103,10 +104,11 @@ let mouseClick = function(d) {
         .duration(mouseTransDuration);
     selected = true;
     selectedSD = this;
-    updateZMap(this); // Update zoomed map
+    updateZMap(+this.id.substring(2)); // Update zoomed map
   }
 }
 
+// OVERVIEW MAP ////////////////////////////////////////////////////////////////
 // Path generator: projection centered on NYC and scaled
 var projection = d3.geoAlbers()
     .center([0, nycLoc[0] + mapOffset[0]])
@@ -133,7 +135,7 @@ var mapBorder = map.append('rect')
 
 // Create map of NYC SDs
 map.selectAll('path')
-  .data(data.features)
+  .data(geoData.features)
   .enter()
   .append('path')
     .attr('d', path)
@@ -152,7 +154,7 @@ map.selectAll('path')
     .on('click', mouseClick);
 
 // Add circle to map for each score data point
-d3.csv(scores).then(function(d) {
+d3.csv(scoresCsv).then(function(d) {
   map.selectAll('circle')
     .data(d)
     .enter()
@@ -177,6 +179,7 @@ d3.csv(scores).then(function(d) {
       });
 });
 
+// ZOOMED MAP //////////////////////////////////////////////////////////////////
 // Create zoomed map
 var mapZ = d3.select('body')
   .append('svg')
@@ -197,54 +200,30 @@ var zProjection = d3.geoAlbers()
 var zPath = d3.geoPath().projection(zProjection);
 
 // Load in csv of SD center lat/long coords, set zoomed map to mapZStartSD at start
-d3.csv(sdCenters).then(function(d) {
+d3.csv(sdCentersCsv).then(function(d) {
   centers = d; // Save center coords to global variable
-
-  // Update projection to center and zoom on set start SD
-  zProjection.center([0, +d[mapZStartSD - 1].lat])
-    .rotate([+d[mapZStartSD - 1].lon, 0])
-    .scale(+d[mapZStartSD - 1].zoom * mapScaleFactor);
-  zPath = d3.geoPath().projection(zProjection);
-
-  // Draw set start SD on zoomed map
-  mapZ.selectAll('path')
-    .data(data.features)
-    .enter()
-    .append('path')
-      .filter(function(d) {
-        return d.properties.SchoolDist === mapZStartSD;
-      })
-      .attr('d', zPath)
-      .attr('stroke', mapStrokeColor)
-      .attr('stroke-width', mapStrokeWidth)
-      .attr('fill', mapFillColor)
-      .attr('class', function(d) {
-        return 'District'
-      })
-      .attr('id', 'sd' + mapZStartSD + 'z')
-      .style('opacity', mapOpacity);
-})
+  updateZMap(mapZStartSD); // Update zoomed map to start SD
+});
 
 // Updates zoomed map to target SD
 let updateZMap = function(sd) {
   mapZ.selectAll('path').remove(); // Remove previous SD
-  var district = +sd.id.substring(2);
-  var center = [+centers[district - 1].lat, +centers[district - 1].lon]; // target SD center coords
-  console.log('DISTRICT ' + district + ' SELECTED');
+  var center = [+centers[sd - 1].lat, +centers[sd - 1].lon]; // target SD center coords
+  console.log('DISTRICT ' + sd + ' SELECTED');
 
   // Update zoomed path generator to target SD
   zProjection.center([0, center[0]])
       .rotate([center[1], 0])
-      .scale(+centers[district-1].zoom * mapScaleFactor);
+      .scale(+centers[sd - 1].zoom * mapScaleFactor);
   zPath = d3.geoPath().projection(zProjection);
 
   // Draw target SD on zoomed map
   mapZ.selectAll('path')
-    .data(data.features)
+    .data(geoData.features)
     .enter()
     .append('path')
       .filter(function(d) {
-        return d.properties.SchoolDist === district;
+        return d.properties.SchoolDist === sd;
       })
       .attr('d', zPath)
       .attr('stroke', mapStrokeColor)
@@ -253,12 +232,6 @@ let updateZMap = function(sd) {
       .attr('class', function(d) {
         return 'District'
       })
-      .attr('id', 'sd' + district + 'z')
+      .attr('id', 'sd' + sd + 'z')
       .style('opacity', mapOpacity);
 }
-
-// Remove this
-map.append('text')
-    .attr('x', 15)
-    .attr('y', 25)
-    .text('Hover a point to see school and average math/reading/writing SAT scores');
