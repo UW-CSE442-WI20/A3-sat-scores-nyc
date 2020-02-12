@@ -35,6 +35,8 @@ var mapZScale = 115000;
 
 var selected = false;
 var selectedSD = null;
+var selectedStrokeWidth = 2;
+var selectedFillColor = 'red';
 
 // Mouse event functions: highlight SDs on mouseover
 let mouseOver = function(d) {
@@ -79,6 +81,7 @@ let mouseClick = function(d) {
     d3.select(this)
         .transition()
         .style('fill', mapFillColor)
+        .attr('stroke-width', mapStrokeWidth)
         .duration(mouseTransDuration);
     selected = false;
   } else {
@@ -86,11 +89,13 @@ let mouseClick = function(d) {
       d3.select(selectedSD)
           .transition()
           .style('fill', mapFillColor)
+          .attr('stroke-width', mapStrokeWidth)
           .duration(mouseTransDuration);
     }
     d3.select(this) // Select target SD
         .transition()
-        .style('fill', 'red')
+        .style('fill', selectedFillColor)
+        .attr('stroke-width', selectedStrokeWidth)
         .duration(mouseTransDuration);
     selected = true;
     selectedSD = this;
