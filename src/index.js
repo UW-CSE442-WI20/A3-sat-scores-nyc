@@ -99,6 +99,8 @@ let mouseClick = function(d) {
         .duration(mouseTransDuration);
     selected = true;
     selectedSD = this;
+    console.log(this);
+    updateZMap(this);
   }
 }
 
@@ -174,6 +176,7 @@ d3.csv(scores).then(function(d) {
 
 // TESTING; CURRENT FOCUS: SD 31, STATEN ISLAND ///////////////
 var statenSD = [40.58, 74.19]
+var centers = [];
 
 // Create zoomed map
 var mapZ = d3.select('body')
@@ -198,6 +201,7 @@ var zProjection = d3.geoAlbers()
 var zPath = d3.geoPath().projection(zProjection);
 
 d3.csv(sdCenters).then(function(d) { // Load in csv of SD center lat/lon coords
+  centers = d;
   var statenSD = [+d[30].lat, +d[30].lon]; // SD 31 at index 30
 
   // Draw SD: 31 HARDCODED
@@ -206,6 +210,10 @@ d3.csv(sdCenters).then(function(d) { // Load in csv of SD center lat/lon coords
     .enter()
     .append('path')
       .filter(function(d) {
+        if (d.properties.SchoolDist === 31) {
+          console.log('found1');
+          console.log(d);
+        }
         return d.properties.SchoolDist === 31; // Staten SD
       })
       .attr('d', zPath)
@@ -217,7 +225,55 @@ d3.csv(sdCenters).then(function(d) { // Load in csv of SD center lat/lon coords
       })
       .attr('id', 'sd31z')
       .style('opacity', mapOpacity)
+  
+  console.log(centers);
 })
+
+let updateZMap = function(d) {
+  // console.log(+d.id.substring(2))
+  // console.log(centers[+d.id.substring(2)])
+
+  mapZ.selectAll('path').remove();
+  var district = +d.id.substring(2);
+  var center = [+centers[district].lat, +centers[district].lon]
+  console.log('center:')
+  console.log(center);
+
+  zProjection.center([0, center[0]])
+      .rotate([center[1], 0])
+      .scale([90000]);
+  zPath = d3.geoPath().projection(zProjection);
+
+  mapZ.selectAll('path')
+    .data(data.features)
+    .enter()
+    .append('path')
+      .filter(function(da) {
+        if (da.properties.SchoolDist === district) {
+          console.log('found2');
+          console.log(da);
+        }
+        return da.properties.SchoolDist === district; // Staten SD
+      })
+      .attr('d', zPath)
+      .attr('stroke', mapStrokeColor)
+      .attr('stroke-width', mapStrokeWidth)
+      .attr('fill', mapFillColor)
+      .attr('class', function(d) {
+        return 'District'
+      })
+      .attr('id', 'sd31z')
+      .style('opacity', mapOpacity)
+}
+
+let updateProjection = function(center) {
+  var projection = d3.geoAlbers()
+      .center([0, center[0]])
+      .rotate([center[1], 0])
+      .translate([mapZWidth/2, mapZHeight/2])
+      .scale([mapZScale]);
+  return d3.geoPath().projection(projection);
+}
 // TESTING; CURRENT FOCUS: SD 31, STATEN ISLAND ///////////////
 
 // Remove this
