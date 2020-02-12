@@ -35,14 +35,15 @@ var mouseTransDuration = 100; // warning: can be glitchy w/ quick mouseovers in 
 
 var selected = false;
 var selectedSD = null;
-var selectedStrokeWidth = 2;
-var selectedFillColor = 'red';
+var selectedStrokeWidth = 1.6;
+var selectedFillColor = '#2b506e';
 
 var mapScaleFactor = 2; // Scale zoomed map to desired dimensions
 var mapZWidth = 350 * mapScaleFactor; // DO NOT CHANGE
 var mapZHeight = 350 * mapScaleFactor; // DO NOT CHANGE
 var mapZStartSD = 31;
 var mapZStrokeWidth = 2;
+var mapZFillColor = mapFillColor;
 var zPointRadius = 5;
 var zPointColor = 'orange';
 var zPointStrokeColor = 'black'
@@ -99,6 +100,8 @@ let mouseClick = function(d) { // De/select SD on mouse click
         .style('fill', mapFillColor)
         .attr('stroke-width', mapStrokeWidth)
         .duration(mouseTransDuration);
+    mapZ.selectAll('path').remove();
+    mapZ.selectAll('circle').remove();
     selected = false;
   } else {
     if (selected) { // Unselect old selected SD
@@ -214,7 +217,7 @@ var zPath = d3.geoPath().projection(zProjection);
 // Load in csv of SD center lat/long coords, set zoomed map to mapZStartSD at start
 d3.csv(sdCentersCsv).then(function(d) {
   centers = d; // Save center coords to global variable
-  updateZMap(mapZStartSD); // Update zoomed map to start SD
+  // updateZMap(mapZStartSD); // Update zoomed map to start SD
 });
 
 // Updates zoomed map to target SD
@@ -236,7 +239,7 @@ let updateZMap = function(sd) {
       .attr('d', zPath)
       .attr('stroke', mapStrokeColor)
       .attr('stroke-width', mapZStrokeWidth)
-      .attr('fill', mapFillColor)
+      .attr('fill', mapZFillColor)
       .attr('class', function(d) {
         return 'District'
       })
