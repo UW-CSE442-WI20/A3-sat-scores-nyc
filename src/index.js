@@ -184,6 +184,7 @@ d3.csv(scoresCsv).then(function(d) {
       .attr('class', function(d) {
         return 'School'
       })
+      .attr('pointer-events', 'none')
       .style('fill', pointColor)
       .style('stroke', pointStrokeColor)
       .style('stroke-width', pointStrokeWidth)
