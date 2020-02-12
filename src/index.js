@@ -93,8 +93,9 @@ let mouseLeave = function(d) { // Unhighlight SD on mouse leave
       .style('fill', mapFillColor)
       .style('opacity', mapOpacity);
 };
-let mouseClick = function(d) { // De/select SD on mouse click
-  if (this === selected) { // If targetting selected SD, unselect
+let mouseClick = function(d) { //De/select SD on mouse click
+  var unselect = this === selected ? true : false;
+  if (selected) { // Unselect selected SD if one exists
     d3.select(selected)
         .transition()
         .style('fill', mapFillColor)
@@ -103,26 +104,15 @@ let mouseClick = function(d) { // De/select SD on mouse click
     mapZ.selectAll('path').remove();
     mapZ.selectAll('circle').remove();
     selected = null;
-  } else {
-    if (selected) { // Unselect old selected SD
-      d3.select(selected)
-          .transition()
-          .style('fill', mapFillColor)
-          .attr('stroke-width', mapStrokeWidth)
-          .duration(mouseTransDuration);
-      mapZ.selectAll('path').remove();
-      mapZ.selectAll('circle').remove();
-      selected = null;
-    }
-    if (this.className.baseVal === 'District') {
-      d3.select(this) // Select target SD
-          .transition()
-          .style('fill', selectedFillColor)
-          .attr('stroke-width', selectedStrokeWidth)
-          .duration(mouseTransDuration);
-      selected = this;
-      updateZMap(+this.id.substring(2)); // Update zoomed map
-    }
+  }
+  if (d && selected !== this && !unselect) { // Select target SD not already selected when clicked on
+    d3.select(this)
+        .transition()
+        .style('fill', selectedFillColor)
+        .attr('stroke-width', selectedStrokeWidth)
+        .duration(mouseTransDuration);
+    selected = this;
+    updateZMap(+this.id.substring(2)); // Update zoomed map
   }
 }
 
