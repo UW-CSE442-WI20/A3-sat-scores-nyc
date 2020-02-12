@@ -6,6 +6,8 @@ import sdCentersCsv from './school_district_centers.csv';
 const math = 'Average Score (SAT Math)';
 const reading = 'Average Score (SAT Reading)';
 const writing = 'Average Score (SAT Writing)';
+var scores = [] // Array of school objects with columns from scores csv
+var districtGeos = new Map(); // Map of SD# to GeoOBJECT
 
 var nycLoc = [40.7128, 74.0060]; // [lat, lon]
 var centers = []; // Array of SD objects with columns {id, lat, lon, zoom}
@@ -31,17 +33,26 @@ var mapHoverColor = '#2b506e';
 var mapNonFocusOpacity = 0.6; // non-mouseovered SD opacity
 var mouseTransDuration = 100; // warning: can be glitchy w/ quick mouseovers in succession
 
-var mapScaleFactor = 2; // Scale zoomed map to desired dimensions
-var mapZWidth = 350 * mapScaleFactor; // DO NOT CHANGE
-var mapZHeight = 350 * mapScaleFactor; // DO NOT CHANGE
-var mapZStartSD = 31;
-var mapZStrokeWidth = 2;
-
 var selected = false;
 var selectedSD = null;
 var selectedStrokeWidth = 2;
 var selectedFillColor = 'red';
 
+var mapScaleFactor = 2; // Scale zoomed map to desired dimensions
+var mapZWidth = 350 * mapScaleFactor; // DO NOT CHANGE
+var mapZHeight = 350 * mapScaleFactor; // DO NOT CHANGE
+var mapZStartSD = 31;
+var mapZStrokeWidth = 2;
+var zPointRadius = 5;
+var zPointColor = 'orange';
+var zPointStrokeColor = 'black'
+var zPointStrokeWidth = 1;
+var zPointOpacity = 0.75;
+
+// Remap SD geo data to correct keys
+for (var idx in geoData.features) {
+  districtGeos.set(geoData.features[idx].properties.SchoolDist, geoData.features[idx])
+}
 
 // MOUSE EVENTS ////////////////////////////////////////////////////////////////
 let mouseOver = function(d) { // Highlight SD on mouseover
@@ -153,8 +164,9 @@ map.selectAll('path')
     .on('mouseleave', mouseLeave)
     .on('click', mouseClick);
 
-// Add circle to map for each score data point
+// Add circle to map for each school data point
 d3.csv(scoresCsv).then(function(d) {
+  scores = d; // Save scores to global variable
   map.selectAll('circle')
     .data(d)
     .enter()
@@ -208,6 +220,7 @@ d3.csv(sdCentersCsv).then(function(d) {
 // Updates zoomed map to target SD
 let updateZMap = function(sd) {
   mapZ.selectAll('path').remove(); // Remove previous SD
+  mapZ.selectAll('circle').remove();
   var center = [+centers[sd - 1].lat, +centers[sd - 1].lon]; // target SD center coords
   console.log('DISTRICT ' + sd + ' SELECTED');
 
@@ -232,6 +245,33 @@ let updateZMap = function(sd) {
       .attr('class', function(d) {
         return 'District'
       })
-      .attr('id', 'sd' + sd + 'z')
+      // .attr('id', 'sd' + sd + 'z')
       .style('opacity', mapOpacity);
+    
+  // Add circle to zoomed map for each school in target SD
+  mapZ.selectAll('circle')
+    .data(scores)
+    .enter()
+    .append('circle')
+      .filter(function(d) { // Filter schools only in target SD (NOTE: LONG PROCESSING TIME, PERHAPS PRELOAD)
+        return d3.geoContains(districtGeos.get(sd), [d.Longitude, d.Latitude]);
+      })
+      .attr('cx', function(d) {
+        return zProjection([d.Longitude, d.Latitude])[0];
+      })
+      .attr('cy', function(d) {
+        return zProjection([d.Longitude, d.Latitude])[1];
+      })
+      .attr('r', zPointRadius)
+      .attr('class', function(d) {
+        return 'School'
+      })
+      .style('fill', zPointColor)
+      .style('stroke', zPointStrokeColor)
+      .style('stroke-width', zPointStrokeWidth)
+      .style('opacity', zPointOpacity)
+    .append('title') // Tooltip: {SchoolName: avgMath/avgReading/avgWriting}
+      .text(function(d) {
+        return d['School Name'] + ': ' + d[math] + '/' + d[reading] + '/' + d[writing];
+      });
 }
