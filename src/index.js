@@ -24,11 +24,11 @@ var mapStrokeWidth = 0.5;
 var mapFillColor = 'steelblue';
 var mapOpacity = 0.9;
 
-var pointRadius = 3;
-var pointColor = 'orange';
-var pointStrokeColor = 'gray'
-var pointStrokeWidth = 0.25;
-var pointOpacity = 0.75;
+var pointRadius = 2.5;
+var pointColor = '#ff6600';
+var pointStrokeColor = 'black'
+var pointStrokeWidth = 0.7;
+var pointOpacity = 1;
 
 var mapHoverColor = '#2b506e';
 var mapNonFocusOpacity = 0.6; // non-mouseovered SD opacity
@@ -41,14 +41,14 @@ var selectedFillColor = '#2b506e';
 var mapScaleFactor = 2; // Scale zoomed map to desired dimensions
 var mapZWidth = 350 * mapScaleFactor; // DO NOT CHANGE
 var mapZHeight = 350 * mapScaleFactor; // DO NOT CHANGE
-var mapZStartSD = 31;
+var mapZStartSD = null;
 var mapZStrokeWidth = 2;
 var mapZFillColor = mapFillColor;
-var zPointRadius = 5;
-var zPointColor = 'orange';
+var zPointRadius = 6;
+var zPointColor = '#ff6600';
 var zPointStrokeColor = 'black'
 var zPointStrokeWidth = 1;
-var zPointOpacity = 0.75;
+var zPointOpacity = 1;
 
 // Remap SD geo data to correct keys
 for (var idx in geoData.features) {
@@ -183,11 +183,7 @@ d3.csv(scoresCsv).then(function(d) {
       .style('fill', pointColor)
       .style('stroke', pointStrokeColor)
       .style('stroke-width', pointStrokeWidth)
-      .style('opacity', pointOpacity)
-    .append('title') // Tooltip: {SchoolName: avgMath/avgReading/avgWriting}
-      .text(function(d) {
-        return d['School Name'] + ': ' + d[math] + '/' + d[reading] + '/' + d[writing];
-      });
+      .style('opacity', pointOpacity);
 });
 
 // ZOOMED MAP //////////////////////////////////////////////////////////////////
@@ -213,7 +209,9 @@ var zPath = d3.geoPath().projection(zProjection);
 // Load in csv of SD center lat/long coords, set zoomed map to mapZStartSD at start
 d3.csv(sdCentersCsv).then(function(d) {
   centers = d; // Save center coords to global variable
-  // updateZMap(mapZStartSD); // Update zoomed map to start SD
+  if (mapZStartSD) {
+    updateZMap(mapZStartSD); // Update zoomed map to start SD
+  }
 });
 
 // Updates zoomed map to target SD
@@ -267,6 +265,7 @@ let updateZMap = function(sd) {
       .style('opacity', zPointOpacity)
     .append('title') // Tooltip: {SchoolName: avgMath/avgReading/avgWriting}
       .text(function(d) {
-        return d['School Name'] + ': ' + d[math] + '/' + d[reading] + '/' + d[writing];
+        return d['School Name'] + ' Averages: ' + d[math] + ' Math/' + 
+               d[reading] + ' Reading/' + d[writing] +' Writing';
       });
 }
