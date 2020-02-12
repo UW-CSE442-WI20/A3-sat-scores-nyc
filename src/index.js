@@ -235,7 +235,7 @@ let updateZMap = function(d) {
 
   mapZ.selectAll('path').remove();
   var district = +d.id.substring(2);
-  var center = [+centers[district].lat, +centers[district].lon]
+  var center = [+centers[district - 1].lat, +centers[district - 1].lon]
   console.log('center:')
   console.log(center);
 
