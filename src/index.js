@@ -51,7 +51,12 @@ var zPointOpacity = 1;
 
 // Remap SD geo data to correct keys
 for (var idx in geoData.features) {
-  districtGeos.set(geoData.features[idx].properties.SchoolDist, geoData.features[idx])
+  var sd = geoData.features[idx].properties.SchoolDist;
+  if (sd === 10 && districtGeos.has(10)) { // Deal with double SD10 geoJSON entries
+    districtGeos.set(sd + 'b', geoData.features[idx])
+  } else {
+    districtGeos.set(sd, geoData.features[idx])
+  }
 }
 
 // MOUSE EVENTS ////////////////////////////////////////////////////////////////
@@ -238,15 +243,31 @@ let updateZMap = function(sd) {
       })
       // .attr('id', 'sd' + sd + 'z')
       .style('opacity', mapOpacity);
+  if (sd === 10) { // Deal with double SD10 geoJSON entries
+    mapZ.append('path')
+    .datum(districtGeos.get('10b'))
+    .attr('d', zPath)
+    .attr('stroke', mapStrokeColor)
+    .attr('stroke-width', mapZStrokeWidth)
+    .attr('fill', mapZFillColor)
+    .attr('class', function(d) {
+      return 'District'
+    })
+    // .attr('id', 'sd' + sd + 'z')
+    .style('opacity', mapOpacity);
+  }
   
-    
   // Add circle to zoomed map for each school in target SD
   mapZ.selectAll('circle')
     .data(scores)
     .enter()
     .append('circle')
       .filter(function(d) { // Filter schools only in target SD
-        return +d.District === sd;
+        if (sd === 10) { // Deal with double SD10 geoJSON entries
+          return +d.District === sd || d.District === '10b';
+        } else {
+          return +d.District === sd;
+        }
       })
       .attr('cx', function(d) {
         return zProjection([d.Longitude, d.Latitude])[0];
