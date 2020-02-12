@@ -131,13 +131,13 @@ School ID,School Name,Borough,Building Code,Street Address,City,State,Zip Code,L
 09X231,Eagle Academy for Young Men,Bronx,X465,4143 Third Avenue,Bronx,NY,10457,40.84519,-73.89698,718-466-8000,8:30 AM,4:00 PM,608,0.50%,60.70%,36.00%,0.30%,398,410,397,65.70%,9
 09X412,Bronx High School of Business,Bronx,X410,240 East 172nd Street,Bronx,NY,10457,40.84037,-73.91084,718-410-4060,7:45 AM,3:15 PM,339,1.20%,33.30%,63.10%,1.50%,365,360,346,33.30%,9
 09X329,DreamYard Preparatory School,Bronx,X410,240 East 172nd Street,Bronx,NY,10457,40.84037,-73.91084,718-410-4242,8:40 AM,3:15 PM,336,1.20%,33.60%,60.70%,1.50%,385,385,388,51.10%,9
-10X225,Theatre Arts Production Company School,Bronx,X137,2225 Webster Avenue,Bronx,NY,10457,40.85465,-73.89665,718-584-0832,8:30 AM,3:30 PM,632,0.70%,29.20%,66.60%,1.20%,402,421,410,77.70%,null
-10X243,West Bronx Academy for the Future,Bronx,X435,500 East Fordham Road,Bronx,NY,10458,40.86001,-73.88823,718-563-7139,8:30 AM,3:15 PM,599,3.00%,21.10%,72.00%,2.70%,404,383,378,57.30%,null
-10X439,Bronx High School for Law and Community Service,Bronx,X435,500 East Fordham Road,Bronx,NY,10458,40.86001,-73.88823,718-733-5274,8:15 AM,4:00 PM,398,1.80%,24.40%,70.90%,1.30%,401,402,386,64.80%,null
-10X434,Belmont Preparatory High School,Bronx,X435,500 East Fordham Road,Bronx,NY,10458,40.86001,-73.88823,718-733-4559,8:15 AM,3:45 PM,416,1.90%,30.00%,65.60%,2.20%,413,408,402,55.30%,null
-10X437,Fordham High School for the Arts,Bronx,X435,500 East Fordham Road,Bronx,NY,10458,40.86001,-73.88823,718-733-4656,8:00 AM,3:45 PM,401,2.50%,30.90%,65.10%,1.00%,398,404,412,56.20%,null
-10X374,Knowledge and Power Preparatory Academy International High School (KAPPA),Bronx,X435,500 East Fordham Road,Bronx,NY,10458,40.86001,-73.88823,718-933-1247,7:30 AM,4:00 PM,487,2.10%,32.20%,61.40%,2.50%,408,417,404,66.70%,null
-10X438,Fordham Leadership Academy for Business and Technology,Bronx,X435,500 East Fordham Road,Bronx,NY,10458,40.86001,-73.88823,718-733-5024,8:00 AM,4:00 PM,438,2.70%,27.60%,67.80%,1.80%,355,373,368,44.30%,null
+10X225,Theatre Arts Production Company School,Bronx,X137,2225 Webster Avenue,Bronx,NY,10457,40.85465,-73.89665,718-584-0832,8:30 AM,3:30 PM,632,0.70%,29.20%,66.60%,1.20%,402,421,410,77.70%,10b
+10X243,West Bronx Academy for the Future,Bronx,X435,500 East Fordham Road,Bronx,NY,10458,40.86001,-73.88823,718-563-7139,8:30 AM,3:15 PM,599,3.00%,21.10%,72.00%,2.70%,404,383,378,57.30%,10b
+10X439,Bronx High School for Law and Community Service,Bronx,X435,500 East Fordham Road,Bronx,NY,10458,40.86001,-73.88823,718-733-5274,8:15 AM,4:00 PM,398,1.80%,24.40%,70.90%,1.30%,401,402,386,64.80%,10b
+10X434,Belmont Preparatory High School,Bronx,X435,500 East Fordham Road,Bronx,NY,10458,40.86001,-73.88823,718-733-4559,8:15 AM,3:45 PM,416,1.90%,30.00%,65.60%,2.20%,413,408,402,55.30%,10b
+10X437,Fordham High School for the Arts,Bronx,X435,500 East Fordham Road,Bronx,NY,10458,40.86001,-73.88823,718-733-4656,8:00 AM,3:45 PM,401,2.50%,30.90%,65.10%,1.00%,398,404,412,56.20%,10b
+10X374,Knowledge and Power Preparatory Academy International High School (KAPPA),Bronx,X435,500 East Fordham Road,Bronx,NY,10458,40.86001,-73.88823,718-933-1247,7:30 AM,4:00 PM,487,2.10%,32.20%,61.40%,2.50%,408,417,404,66.70%,10b
+10X438,Fordham Leadership Academy for Business and Technology,Bronx,X435,500 East Fordham Road,Bronx,NY,10458,40.86001,-73.88823,718-733-5024,8:00 AM,4:00 PM,438,2.70%,27.60%,67.80%,1.80%,355,373,368,44.30%,10b
 12X248,Metropolitan High School,Bronx,X099,1180 Rev JA Polite Avenue,Bronx,NY,10459,40.82523,-73.89395,718-991-4634,8:00 AM,4:00 PM,326,0.30%,21.50%,74.80%,0.90%,387,388,386,65.90%,12
 08X332,Holcombe L. Rucker School of Community Research,Bronx,X039,965 Longwood Avenue,Bronx,NY,10459,40.81744,-73.89805,718-860-1053,8:15 AM,3:15 PM,236,0.40%,43.20%,54.70%,0.40%,376,372,369,59.00%,8
 08X530,Banana Kelly High School,Bronx,X039,965 Longwood Avenue,Bronx,NY,10459,40.81744,-73.89805,718-860-1242,8:45 AM,3:05 PM,325,1.20%,37.20%,60.60%,0.00%,378,391,378,25.70%,8
@@ -152,13 +152,13 @@ School ID,School Name,Borough,Building Code,Street Address,City,State,Zip Code,L
 08X293,Renaissance High School for Musical Theater and Technology,Bronx,X405,3000 East Tremont Avenue,Bronx,NY,10461,40.84051,-73.83812,718-430-6390,8:15 AM,3:00 PM,444,7.20%,27.90%,61.00%,3.20%,390,411,393,52.30%,8
 08X405,Herbert H. Lehman High School,Bronx,X405,3000 East Tremont Avenue,Bronx,NY,10461,40.84051,-73.83812,718-904-4200,8:15 AM,3:45 PM,1535,10.60%,23.60%,54.90%,9.20%,426,419,407,28.90%,8
 11X418,Bronx High School for the Visual Arts,Bronx,X839,2040 Antin Place,Bronx,NY,10462,40.85143,-73.86502,718-319-5160,8:15 AM,2:45 PM,483,6.80%,27.30%,61.50%,3.70%,408,428,404,32.50%,11
-10X368,In-Tech Academy,Bronx,X368,2975 Tibbett Avenue,Bronx,NY,10463,40.88005,-73.90921,718-432-4300,8:30 AM,3:30 PM,1022,3.40%,10.80%,82.80%,2.80%,426,419,404,85.90%,null
+10X368,In-Tech Academy,Bronx,X368,2975 Tibbett Avenue,Bronx,NY,10463,40.88005,-73.90921,718-432-4300,8:30 AM,3:30 PM,1022,3.40%,10.80%,82.80%,2.80%,426,419,404,85.90%,10b
 10X284,Bronx School of Law and Finance,Bronx,X475,99 Terrace View Avenue,Bronx,NY,10463,40.87705,-73.91234,718-561-0113,8:00 AM,2:45 PM,426,2.60%,30.30%,64.80%,2.10%,384,394,366,48.30%,10
 10X213,Bronx Engineering and Technology Academy,Bronx,X475,99 Terrace View Avenue,Bronx,NY,10463,40.87705,-73.91234,718-563-6678,8:15 AM,4:30 PM,417,1.40%,34.30%,55.90%,6.70%,394,406,391,59.60%,10
 10X546,Bronx Theatre High School,Bronx,X475,99 Terrace View Avenue,Bronx,NY,10463,40.87705,-73.91234,718-329-2902,8:40 AM,4:00 PM,428,1.60%,30.10%,67.10%,0.50%,382,384,390,66.70%,10
 10X477,Marble Hill High School for International Studies,Bronx,X475,99 Terrace View Avenue,Bronx,NY,10463,40.87705,-73.91234,718-561-0973,8:30 AM,4:40 PM,449,5.10%,24.50%,61.00%,8.90%,451,417,423,92.90%,10
-10X237,"Marie Curie School for Medicine, Nursing, and Health Professions",Bronx,X143,120 West 231st Street,Bronx,NY,10463,40.87598,-73.90123,718-432-6491,8:00 AM,2:45 PM,583,3.30%,35.70%,56.90%,2.70%,423,420,425,68.60%,null
-10X141,Riverdale/Kingsbridge Academy,Bronx,X141,660 West 237th Street,Bronx,NY,10463,40.88837,-73.91409,718-796-8516,8:20 AM,2:40 PM,1381,23.70%,12.30%,55.70%,7.70%,496,485,476,69.40%,null
+10X237,"Marie Curie School for Medicine, Nursing, and Health Professions",Bronx,X143,120 West 231st Street,Bronx,NY,10463,40.87598,-73.90123,718-432-6491,8:00 AM,2:45 PM,583,3.30%,35.70%,56.90%,2.70%,423,420,425,68.60%,10b
+10X141,Riverdale/Kingsbridge Academy,Bronx,X141,660 West 237th Street,Bronx,NY,10463,40.88837,-73.91409,718-796-8516,8:20 AM,2:40 PM,1381,23.70%,12.30%,55.70%,7.70%,496,485,476,69.40%,10b
 11X513,New World High School,Bronx,X362,921 East 228th Street,Bronx,NY,10466,40.88792,-73.85287,718-696-3800,8:00 AM,3:00 PM,408,7.60%,9.30%,66.20%,13.70%,407,363,358,93.00%,11
 11X514,Bronxwood Preparatory Academy,Bronx,X362,921 East 228th Street,Bronx,NY,10466,40.88792,-73.85287,718-696-3820,8:00 AM,3:00 PM,423,3.80%,61.90%,28.80%,3.30%,392,408,392,43.30%,11
 11X270,Academy for Scholarship and Entrepreneurship (College Board),Bronx,X362,921 East 228th Street,Bronx,NY,10466,40.88792,-73.85287,718-696-3840,8:00 AM,2:56 PM,371,1.10%,63.60%,30.50%,3.20%,392,408,400,63.40%,11
@@ -168,14 +168,14 @@ School ID,School Name,Borough,Building Code,Street Address,City,State,Zip Code,L
 11X275,High School of Computers and Technology,Bronx,X425,800 East Gun Hill Road,Bronx,NY,10467,40.87575,-73.86139,718-696-3930,8:00 AM,3:00 PM,567,1.20%,34.40%,58.00%,4.90%,396,399,377,65.60%,11
 11X265,Bronx Lab School,Bronx,X425,800 East Gun Hill Road,Bronx,NY,10467,40.87575,-73.86139,718-696-3700,8:45 AM,5:00 PM,471,1.50%,39.90%,54.40%,3.60%,407,416,401,77.40%,11
 11X253,Bronx High School for Writing and Communication Arts,Bronx,X425,800 East Gun Hill Road,Bronx,NY,10467,40.87575,-73.86139,718-944-5660,8:00 AM,3:00 PM,389,1.30%,45.00%,49.10%,3.30%,380,437,425,38.10%,11
-10X433,High School for Teaching and the Professions,Bronx,X430,2780 Reservoir Avenue,Bronx,NY,10468,40.87038,-73.89816,718-329-7380,8:45 AM,3:45 PM,486,2.70%,20.40%,74.50%,1.90%,372,361,369,46.50%,null
-10X445,Bronx High School of Science,Bronx,X445,75 West 205th Street,Bronx,NY,10468,40.87706,-73.88978,718-817-7700,8:00 AM,3:45 PM,3015,22.10%,2.60%,5.50%,62.80%,714,660,667,97.00%,null
-10X268,Kingsbridge International High School,Bronx,X430,2780 Reservoir Avenue,Bronx,NY,10468,40.87038,-73.89816,718-329-8580,7:45 AM,2:45 PM,461,2.00%,5.20%,85.90%,6.50%,366,311,310,50.70%,null
-10X549,Discovery High School,Bronx,X430,2780 Reservoir Avenue,Bronx,NY,10468,40.87038,-73.89816,718-733-3872,8:45 AM,3:45 PM,530,2.30%,17.40%,77.20%,2.50%,432,396,395,39.90%,null
-10X442,Celia Cruz Bronx High School of Music,Bronx,X430,2780 Reservoir Avenue,Bronx,NY,10468,40.87038,-73.89816,718-329-8550,8:00 AM,3:45 PM,430,1.20%,25.30%,70.00%,1.40%,417,434,425,75.60%,null
-10X696,High School of American Studies at Lehman College,Bronx,X905,2925 Goulden Avenue,Bronx,NY,10468,40.87126,-73.89752,718-329-2144,8:00 AM,3:00 PM,376,50.80%,4.00%,15.20%,23.10%,669,672,672,91.80%,null
-10X440,DeWitt Clinton High School,Bronx,X440,100 West Mosholu Parkway South,Bronx,NY,10468,40.88008,-73.8859,718-543-1000,8:00 AM,2:46 PM,2109,3.60%,31.60%,54.50%,8.60%,445,436,433,31.80%,null
-10X342,International School for Liberal Arts,Bronx,X430,2780 Reservoir Avenue,Bronx,NY,10468,40.87038,-73.89816,718-329-8570,8:00 AM,3:45 PM,561,0.50%,0.00%,99.50%,0.00%,390,387,379,19.20%,null
+10X433,High School for Teaching and the Professions,Bronx,X430,2780 Reservoir Avenue,Bronx,NY,10468,40.87038,-73.89816,718-329-7380,8:45 AM,3:45 PM,486,2.70%,20.40%,74.50%,1.90%,372,361,369,46.50%,10b
+10X445,Bronx High School of Science,Bronx,X445,75 West 205th Street,Bronx,NY,10468,40.87706,-73.88978,718-817-7700,8:00 AM,3:45 PM,3015,22.10%,2.60%,5.50%,62.80%,714,660,667,97.00%,10b
+10X268,Kingsbridge International High School,Bronx,X430,2780 Reservoir Avenue,Bronx,NY,10468,40.87038,-73.89816,718-329-8580,7:45 AM,2:45 PM,461,2.00%,5.20%,85.90%,6.50%,366,311,310,50.70%,10b
+10X549,Discovery High School,Bronx,X430,2780 Reservoir Avenue,Bronx,NY,10468,40.87038,-73.89816,718-733-3872,8:45 AM,3:45 PM,530,2.30%,17.40%,77.20%,2.50%,432,396,395,39.90%,10b
+10X442,Celia Cruz Bronx High School of Music,Bronx,X430,2780 Reservoir Avenue,Bronx,NY,10468,40.87038,-73.89816,718-329-8550,8:00 AM,3:45 PM,430,1.20%,25.30%,70.00%,1.40%,417,434,425,75.60%,10b
+10X696,High School of American Studies at Lehman College,Bronx,X905,2925 Goulden Avenue,Bronx,NY,10468,40.87126,-73.89752,718-329-2144,8:00 AM,3:00 PM,376,50.80%,4.00%,15.20%,23.10%,669,672,672,91.80%,10b
+10X440,DeWitt Clinton High School,Bronx,X440,100 West Mosholu Parkway South,Bronx,NY,10468,40.88008,-73.8859,718-543-1000,8:00 AM,2:46 PM,2109,3.60%,31.60%,54.50%,8.60%,445,436,433,31.80%,10b
+10X342,International School for Liberal Arts,Bronx,X430,2780 Reservoir Avenue,Bronx,NY,10468,40.87038,-73.89816,718-329-8570,8:00 AM,3:45 PM,561,0.50%,0.00%,99.50%,0.00%,390,387,379,19.20%,10b
 11X299,Astor Collegiate Academy,Bronx,X415,925 Astor Avenue,Bronx,NY,10469,40.8597,-73.86074,718-944-3418,7:35 AM,3:55 PM,476,10.50%,33.40%,47.90%,6.50%,422,417,409,57.90%,11
 11X542,Pelham Preparatory Academy,Bronx,X415,925 Astor Avenue,Bronx,NY,10469,40.8597,-73.86074,718-944-3601,8:15 AM,3:45 PM,489,6.50%,35.60%,48.90%,5.50%,420,433,425,77.00%,11
 11X509,High School of Language and Innovation,Bronx,X415,925 Astor Avenue,Bronx,NY,10469,40.8597,-73.86074,718-944-3625,8:25 AM,3:15 PM,354,11.00%,11.90%,57.60%,16.70%,356,340,320,72.70%,11
