@@ -40,7 +40,7 @@ var selectedFillColor = '#2b506e';
 var mapScaleFactor = 2; // Scale zoomed map to desired dimensions
 var mapZWidth = 350 * mapScaleFactor; // DO NOT CHANGE
 var mapZHeight = 350 * mapScaleFactor; // DO NOT CHANGE
-var mapZStartSD = null;
+var mapZStartSD = null; // Load SD on zoomed map at start; null to deactivate
 var mapZStrokeWidth = 2;
 var mapZFillColor = mapFillColor;
 var zPointRadius = 6;
@@ -48,6 +48,14 @@ var zPointColor = '#ff6600';
 var zPointStrokeColor = 'black'
 var zPointStrokeWidth = 1;
 var zPointOpacity = 1;
+
+var zSelected = null; // Selected school
+var zSelectedStrokeWidth = 2;
+var zSelectedPointRadius = 8;
+var zSelectedFillColor = '#b04600';
+var zHoverColor = '#b04600';
+var zHoverRadius = 8;
+var zSelected = null;
 
 // Remap SD geo data to correct keys
 for (var idx in geoData.features) {
@@ -60,27 +68,27 @@ for (var idx in geoData.features) {
 }
 
 // MOUSE EVENTS ////////////////////////////////////////////////////////////////
-let mouseOver = function(d) { // Highlight SD on mouseover
+let overviewMouseOver = function(d) { // Highlight SD on mouseover
   // d3.selectAll('.District') // Fade other SDs
   //     .transition()
   //     .duration(mouseTransDuration)
   //     .style('fill', mapFillColor)
   //     .style('opacity', mapOpacity);
   d3.select(this) // Highlight overview target SD
-      .filter(function(d) { // Filter selected SD
-        return selected ? this != selected : true;
-      })
+      // .filter(function(d) { // Filter selected SD
+      //   return selected ? this != selected : true;
+      // })
       .transition()
       .duration(mouseTransDuration)
       .style('fill', mapHoverColor)
       .style('opacity', mapOpacity);
-  d3.select('#' + this.id + 'z') // Highlight zoomed target SD
-      .transition()
-      .duration(mouseTransDuration)
-      .style('fill', mapHoverColor)
-      .style('opacity', mapOpacity);
+  // d3.select('#' + this.id + 'z') // Highlight zoomed target SD
+  //     .transition()
+  //     .duration(mouseTransDuration)
+  //     .style('fill', mapHoverColor)
+  //     .style('opacity', mapOpacity);
 };
-let mouseLeave = function(d) { // Unhighlight SD on mouse leave
+let overviewMouseLeave = function(d) { // Unhighlight SD on mouse leave
   // d3.selectAll('.District') // Unfade other SDs
   //     .transition()
   //     .duration(mouseTransDuration)
@@ -91,13 +99,13 @@ let mouseLeave = function(d) { // Unhighlight SD on mouse leave
         .style('fill', mapFillColor)
         .duration(mouseTransDuration);
   }
-  d3.select('#' + this.id + 'z')  // De-highlight zoomed target SD
-      .transition()
-      .duration(mouseTransDuration)
-      .style('fill', mapFillColor)
-      .style('opacity', mapOpacity);
+  // d3.select('#' + this.id + 'z')  // De-highlight zoomed target SD
+  //     .transition()
+  //     .duration(mouseTransDuration)
+  //     .style('fill', mapFillColor)
+  //     .style('opacity', mapOpacity);
 };
-let mouseClick = function(d) { //De/select SD on mouse click
+let overviewMouseClick = function(d) { //De/select SD on mouse click
   var unselect = this === selected ? true : false;
   if (selected) { // Unselect selected SD if one exists
     d3.select(selected)
@@ -117,6 +125,43 @@ let mouseClick = function(d) { //De/select SD on mouse click
         .duration(mouseTransDuration);
     selected = this;
     updateZMap(+this.id.substring(2)); // Update zoomed map
+  }
+}
+let zMouseOver = function(d) { // Highlight school on mouseover
+  d3.select(this) // Highlight target school
+      .transition()
+      .duration(mouseTransDuration)
+      .attr('r', zHoverRadius)
+      .style('fill', zHoverColor);
+}
+let zMouseLeave = function(d) { // Unhighlight school on mouse leave
+  if (zSelected != this) { // Do not de-highlight selected school
+    d3.select(this) // De-highlight target school
+      .transition()
+      .duration(mouseTransDuration)
+      .attr('r', zPointRadius)
+      .style('fill', zPointColor)
+  }
+}
+let zMouseClick = function(d) { // De/select school on mouse click
+  var unselect = this === zSelected ? true : false; 
+  if (zSelected) { // Unselect selected school if one exists
+    d3.select(zSelected)
+        .transition()
+        .duration(mouseTransDuration)
+        .attr('r', zPointRadius)
+        .style('fill', zPointColor)
+        .style('stroke-width', zPointStrokeWidth);
+    zSelected = null;
+  }
+  if (d && d.type != 'Feature' && zSelected !== this && !unselect) { // Select target school not already selected
+    d3.select(this)
+        .transition()
+        .duration(mouseTransDuration)
+        .style('fill', zSelectedFillColor)
+        .style('stroke-width', zSelectedStrokeWidth)
+        .attr('r', zSelectedPointRadius);
+    zSelected = this;
   }
 }
 
@@ -145,7 +190,7 @@ var mapBorder = map.append('rect')
     .style('stroke', mapBorderColor)
     .style('fill', 'none')
     .style('stroke-width', mapBorderW)
-    .on('click', mouseClick);;
+    .on('click', overviewMouseClick);;
 
 // Create map of NYC SDs
 map.selectAll('path')
@@ -163,9 +208,9 @@ map.selectAll('path')
       return 'sd' + d.properties.SchoolDist;
     })
     .style('opacity', mapOpacity)
-    .on('mouseover', mouseOver)
-    .on('mouseleave', mouseLeave)
-    .on('click', mouseClick);
+    .on('mouseover', overviewMouseOver)
+    .on('mouseleave', overviewMouseLeave)
+    .on('click', overviewMouseClick);
 
 // Add circle to map for each school data point
 d3.csv(scoresCsv).then(function(d) {
@@ -202,9 +247,11 @@ mapZ.append('rect')
     .attr('y', 0)
     .attr('height', mapZWidth)
     .attr('width', mapZHeight)
+    .attr('pointer-events', 'all')
     .style('stroke', mapBorderColor)
     .style('fill', 'none')
-    .style('stroke-width', mapBorderW);
+    .style('stroke-width', mapBorderW)
+    .on('click', zMouseClick);
 
 // Create zoomed path generator
 var zProjection = d3.geoAlbers()
@@ -243,7 +290,8 @@ let updateZMap = function(sd) {
         return 'District'
       })
       // .attr('id', 'sd' + sd + 'z')
-      .style('opacity', mapOpacity);
+      .style('opacity', mapOpacity)
+      .on('click', zMouseClick);
   if (sd === 10) { // Deal with double SD10 geoJSON entries
     mapZ.append('path')
     .datum(districtGeos.get('10b'))
@@ -284,6 +332,9 @@ let updateZMap = function(sd) {
       .style('stroke', zPointStrokeColor)
       .style('stroke-width', zPointStrokeWidth)
       .style('opacity', zPointOpacity)
+      .on('mouseover', zMouseOver)
+      .on('mouseleave', zMouseLeave)
+      .on('click', zMouseClick)
     .append('title') // Tooltip: {SchoolName: avgMath/avgReading/avgWriting}
       .text(function(d) {
         return d['School Name'] + ' Averages: ' + d[math] + ' Math/' + 
