@@ -7,7 +7,9 @@ const math = 'Average Score (SAT Math)';
 const reading = 'Average Score (SAT Reading)';
 const writing = 'Average Score (SAT Writing)';
 
-var nycLoc = [40.7128, 74.0060]; // [long, lat]
+var nycLoc = [40.7128, 74.0060]; // [lat, lon]
+var centers = []; // Array of SD objects with columns {id, lat, lon, zoom}
+
 var mapOffset = [0, -0.04];  // map centering
 var mapWidth = 600;
 var mapHeight = 600;
@@ -29,16 +31,18 @@ var mapHoverColor = '#2b506e';
 var mapNonFocusOpacity = 0.6; // non-mouseovered SD opacity
 var mouseTransDuration = 100; // warning: can be glitchy w/ quick mouseovers in succession
 
-var mapZWidth = 350;
-var mapZHeight = 350;
-var mapZScale = 115000;
+var mapScaleFactor = 2; // Scale zoomed map to desired dimensions
+var mapZWidth = 350 * mapScaleFactor; // DO NOT CHANGE
+var mapZHeight = 350 * mapScaleFactor; // DO NOT CHANGE
+var mapZStartSD = 31;
+var mapZStrokeWidth = 2;
 
 var selected = false;
 var selectedSD = null;
 var selectedStrokeWidth = 2;
 var selectedFillColor = 'red';
 
-// Mouse event functions: highlight SDs on mouseover
+// Mouse event functions: highlight SDs on mouseover, select SD on mouseclick
 let mouseOver = function(d) {
   // d3.selectAll('.District') // Fade other SDs
   //     .transition()
@@ -99,8 +103,7 @@ let mouseClick = function(d) {
         .duration(mouseTransDuration);
     selected = true;
     selectedSD = this;
-    console.log(this);
-    updateZMap(this);
+    updateZMap(this); // Update zoomed map
   }
 }
 
@@ -174,10 +177,6 @@ d3.csv(scores).then(function(d) {
       });
 });
 
-// TESTING; CURRENT FOCUS: SD 31, STATEN ISLAND ///////////////
-var statenSD = [40.58, 74.19]
-var centers = [];
-
 // Create zoomed map
 var mapZ = d3.select('body')
   .append('svg')
@@ -192,29 +191,28 @@ mapZ.append('rect')
     .style('fill', 'none')
     .style('stroke-width', mapBorderW);
 
-// Path generator: CENTERED ON STATEN ISLAND
+// Create zoomed path generator
 var zProjection = d3.geoAlbers()
-    .center([0, statenSD[0]])
-    .rotate([statenSD[1] + mapOffset[1], 0])
     .translate([mapZWidth/2, mapZHeight/2])
-    .scale([mapZScale]);
 var zPath = d3.geoPath().projection(zProjection);
 
-d3.csv(sdCenters).then(function(d) { // Load in csv of SD center lat/lon coords
-  centers = d;
-  var statenSD = [+d[30].lat, +d[30].lon]; // SD 31 at index 30
+// Load in csv of SD center lat/long coords, set zoomed map to mapZStartSD at start
+d3.csv(sdCenters).then(function(d) {
+  centers = d; // Save center coords to global variable
 
-  // Draw SD: 31 HARDCODED
+  // Update projection to center and zoom on set start SD
+  zProjection.center([0, +d[mapZStartSD - 1].lat])
+    .rotate([+d[mapZStartSD - 1].lon, 0])
+    .scale(+d[mapZStartSD - 1].zoom * mapScaleFactor);
+  zPath = d3.geoPath().projection(zProjection);
+
+  // Draw set start SD on zoomed map
   mapZ.selectAll('path')
     .data(data.features)
     .enter()
     .append('path')
       .filter(function(d) {
-        if (d.properties.SchoolDist === 31) {
-          console.log('found1');
-          console.log(d);
-        }
-        return d.properties.SchoolDist === 31; // Staten SD
+        return d.properties.SchoolDist === mapZStartSD;
       })
       .attr('d', zPath)
       .attr('stroke', mapStrokeColor)
@@ -223,58 +221,41 @@ d3.csv(sdCenters).then(function(d) { // Load in csv of SD center lat/lon coords
       .attr('class', function(d) {
         return 'District'
       })
-      .attr('id', 'sd31z')
-      .style('opacity', mapOpacity)
-  
-  console.log(centers);
+      .attr('id', 'sd' + mapZStartSD + 'z')
+      .style('opacity', mapOpacity);
 })
 
-let updateZMap = function(d) {
-  // console.log(+d.id.substring(2))
-  // console.log(centers[+d.id.substring(2)])
+// Updates zoomed map to target SD
+let updateZMap = function(sd) {
+  mapZ.selectAll('path').remove(); // Remove previous SD
+  var district = +sd.id.substring(2);
+  var center = [+centers[district - 1].lat, +centers[district - 1].lon]; // target SD center coords
+  console.log('DISTRICT ' + district + ' SELECTED');
 
-  mapZ.selectAll('path').remove();
-  var district = +d.id.substring(2);
-  var center = [+centers[district - 1].lat, +centers[district - 1].lon]
-  console.log('center:')
-  console.log(center);
-
+  // Update zoomed path generator to target SD
   zProjection.center([0, center[0]])
       .rotate([center[1], 0])
-      .scale([90000]);
+      .scale(+centers[district-1].zoom * mapScaleFactor);
   zPath = d3.geoPath().projection(zProjection);
 
+  // Draw target SD on zoomed map
   mapZ.selectAll('path')
     .data(data.features)
     .enter()
     .append('path')
-      .filter(function(da) {
-        if (da.properties.SchoolDist === district) {
-          console.log('found2');
-          console.log(da);
-        }
-        return da.properties.SchoolDist === district; // Staten SD
+      .filter(function(d) {
+        return d.properties.SchoolDist === district;
       })
       .attr('d', zPath)
       .attr('stroke', mapStrokeColor)
-      .attr('stroke-width', mapStrokeWidth)
+      .attr('stroke-width', mapZStrokeWidth)
       .attr('fill', mapFillColor)
       .attr('class', function(d) {
         return 'District'
       })
-      .attr('id', 'sd31z')
-      .style('opacity', mapOpacity)
+      .attr('id', 'sd' + district + 'z')
+      .style('opacity', mapOpacity);
 }
-
-let updateProjection = function(center) {
-  var projection = d3.geoAlbers()
-      .center([0, center[0]])
-      .rotate([center[1], 0])
-      .translate([mapZWidth/2, mapZHeight/2])
-      .scale([mapZScale]);
-  return d3.geoPath().projection(projection);
-}
-// TESTING; CURRENT FOCUS: SD 31, STATEN ISLAND ///////////////
 
 // Remove this
 map.append('text')
