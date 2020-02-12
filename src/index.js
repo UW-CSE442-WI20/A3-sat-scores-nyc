@@ -231,13 +231,8 @@ let updateZMap = function(sd) {
   zPath = d3.geoPath().projection(zProjection);
 
   // Draw target SD on zoomed map
-  mapZ.selectAll('path')
-    .data(geoData.features)
-    .enter()
-    .append('path')
-      .filter(function(d) {
-        return d.properties.SchoolDist === sd;
-      })
+  mapZ.append('path')
+      .datum(districtGeos.get(sd))
       .attr('d', zPath)
       .attr('stroke', mapStrokeColor)
       .attr('stroke-width', mapZStrokeWidth)
@@ -247,6 +242,7 @@ let updateZMap = function(sd) {
       })
       // .attr('id', 'sd' + sd + 'z')
       .style('opacity', mapOpacity);
+  
     
   // Add circle to zoomed map for each school in target SD
   mapZ.selectAll('circle')
