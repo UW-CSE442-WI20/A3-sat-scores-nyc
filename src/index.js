@@ -33,6 +33,9 @@ var mapZWidth = 350;
 var mapZHeight = 350;
 var mapZScale = 115000;
 
+var selected = false;
+var selectedSD = null;
+
 // Mouse event functions: highlight SDs on mouseover
 let mouseOver = function(d) {
   // d3.selectAll('.District') // Fade other SDs
@@ -41,6 +44,9 @@ let mouseOver = function(d) {
   //     .style('fill', mapFillColor)
   //     .style('opacity', mapOpacity);
   d3.select(this) // Highlight overview target SD
+      .filter(function(d) { // Filter selected SD
+        return selected ? this != selectedSD : true;
+      })
       .transition()
       .duration(mouseTransDuration)
       .style('fill', mapHoverColor)
@@ -56,16 +62,40 @@ let mouseLeave = function(d) {
   //     .transition()
   //     .duration(mouseTransDuration)
   //     .style('opacity', mapOpacity);
-  d3.select(this) // De-highlight overview target SD
-      .transition()
-      .style('fill', mapFillColor)
-      .duration(mouseTransDuration);
+  if (selectedSD != this) { // Do not de-highlight selected SD
+    d3.select(this) // De-highlight overview target SD
+        .transition()
+        .style('fill', mapFillColor)
+        .duration(mouseTransDuration);
+  }
   d3.select('#' + this.id + 'z')  // De-highlight zoomed target SD
       .transition()
       .duration(mouseTransDuration)
       .style('fill', mapFillColor)
       .style('opacity', mapOpacity);
 };
+let mouseClick = function(d) {
+  if (this === selectedSD && selected) { // If targetting selected SD, unselect
+    d3.select(this)
+        .transition()
+        .style('fill', mapFillColor)
+        .duration(mouseTransDuration);
+    selected = false;
+  } else {
+    if (selected) { // Unselect old selected SD
+      d3.select(selectedSD)
+          .transition()
+          .style('fill', mapFillColor)
+          .duration(mouseTransDuration);
+    }
+    d3.select(this) // Select target SD
+        .transition()
+        .style('fill', 'red')
+        .duration(mouseTransDuration);
+    selected = true;
+    selectedSD = this;
+  }
+}
 
 // Path generator: projection centered on NYC and scaled
 var projection = d3.geoAlbers()
@@ -91,7 +121,6 @@ var mapBorder = map.append('rect')
     .style('fill', 'none')
     .style('stroke-width', mapBorderW);
 
-    console.log(data.features)
 // Create map of NYC SDs
 map.selectAll('path')
   .data(data.features)
@@ -109,11 +138,11 @@ map.selectAll('path')
     })
     .style('opacity', mapOpacity)
     .on('mouseover', mouseOver)
-    .on('mouseleave', mouseLeave);
+    .on('mouseleave', mouseLeave)
+    .on('click', mouseClick);
 
 // Add circle to map for each score data point
 d3.csv(scores).then(function(d) {
-  console.log(d);
   map.selectAll('circle')
     .data(d)
     .enter()
