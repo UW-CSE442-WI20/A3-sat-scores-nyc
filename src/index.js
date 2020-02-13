@@ -66,7 +66,6 @@ var zSelected = null;
 var rangeMath = [200, 800];
 var rangeReading = [200, 800];
 var rangeWriting = [200, 800];
-var currentDistrict = null;
 
 // Remap SD geo data to correct keys
 for (var idx in geoData.features) {
@@ -324,25 +323,21 @@ let updateMapZoomedPoints = function(sd, rangeMath, rangeReading, rangeWriting) 
   .data(scores)
   .enter()
   .append('circle')
-    .filter(function(d) { // Filter schools only in target SD
-      // currentDistrict = d.District;
-      // var inDistrict = currentDistrict === sd;
-      // var filter = +d.District === sd; // deal with double SD10 geoJSON entries
-      // if (sd === 10)
-      //   filter = +d.District === sd || d.District === '10b'; 
+    .filter(function(d) { // Filter schools only in target SD and in slider ranges
+      var inSd = +d.District === sd;
+      if (sd === 10) {  // deal with double SD10 geoJSON entries
+        inSd = inSd || d.District === '10b'; 
+      }
 
-      var math = d["Average Score (SAT Math)"]; 
-      var reading = d["Average Score (SAT Reading)"]; 
-      var writing = d["Average Score (SAT Writing)"]; 
+      var mathScore = d[math]; 
+      var readingScore = d[reading]; 
+      var writingScore= d[writing]; 
 
-      var mathInRange = math >= rangeMath[0] && math <= rangeMath[1];
-      var readingInRange = reading >= rangeReading[0] && reading <= rangeReading[1];
-      var writingInRange = writing >= rangeWriting[0] && writing <= rangeWriting[1];
+      var mathInRange = mathScore >= rangeMath[0] && mathScore <= rangeMath[1];
+      var readingInRange = readingScore >= rangeReading[0] && readingScore <= rangeReading[1];
+      var writingInRange = writingScore >= rangeWriting[0] && writingScore <= rangeWriting[1];
 
-      if (mathInRange && readingInRange && writingInRange)
-        return true;
-      else 
-        return false;
+      return mathInRange && readingInRange && writingInRange && inSd;
     })
     .attr('cx', function(d) {
       return zProjection([d.Longitude, d.Latitude])[0];
@@ -380,7 +375,7 @@ var sliderRangeMath = d3ss
 .on('onchange', val => {
   rangeMath = val;
   updateMapPoints(rangeMath, rangeReading, rangeWriting);
-  updateMapZoomedPoints(selected, rangeMath, rangeReading, rangeWriting);
+  updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
 });
 
 var gRangeMath = d3
@@ -404,7 +399,7 @@ var sliderRangeReading = d3ss
 .on('onchange', val => {
   rangeReading = val;
   updateMapPoints(rangeMath, rangeReading, rangeWriting);
-  updateMapZoomedPoints(selected, rangeMath, rangeReading, rangeWriting);
+  updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
 });
 
 var gRangeReading = d3
@@ -428,7 +423,7 @@ var sliderRangeWriting = d3ss
 .on('onchange', val => {
   rangeWriting = val;
   updateMapPoints(rangeMath, rangeReading, rangeWriting);
-  updateMapZoomedPoints(selected, rangeMath, rangeReading, rangeWriting);
+  updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
 });
 
 var gRangeWriting = d3
@@ -440,4 +435,3 @@ var gRangeWriting = d3
 .attr('transform', 'translate(30,30)');
 
 gRangeWriting.call(sliderRangeWriting);
-
