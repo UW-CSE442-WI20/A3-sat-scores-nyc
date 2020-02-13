@@ -31,6 +31,7 @@ var mouseTransDuration = 100; // warning: can be glitchy w/ quick mouseovers in 
 
 // NARRATIVE VARIABLES 
 var lowScoreDistricts = ["sd8", "sd12", "sd11", "sd29", "sd24", "sd19", "sd32", "sd16", "sd23", "sd17", "sd18", "sd21", "sd20", "sd9", "sd7"]
+var tutorialActive = true;
 
 // POINT VARIABLES
 var pointRadius = 2.5;
@@ -83,6 +84,7 @@ for (var idx in geoData.features) {
 
 // MOUSE EVENTS MAP ////////////////////////////////////////////////////////////////
 let overviewMouseOver = function(d) { // Highlight SD on mouseover
+  if (tutorialActive) { return; }
   d3.select(this) // Highlight overview target SD
       .transition()
       .duration(mouseTransDuration)
@@ -91,6 +93,8 @@ let overviewMouseOver = function(d) { // Highlight SD on mouseover
 };
 
 let overviewMouseLeave = function(d) { // Unhighlight SD on mouse leave
+  if (tutorialActive) { return; }
+
   if (selected != this) { // Do not de-highlight selected SD
     d3.select(this) // De-highlight overview target SD
         .transition()
@@ -100,6 +104,7 @@ let overviewMouseLeave = function(d) { // Unhighlight SD on mouse leave
 };
 
 let overviewMouseClick = function(d) { //De/select SD on mouse click
+  if (tutorialActive) { return; }
   var unselect = this === selected ? true : false;
   console.log(this);
   if (selected) { // Unselect selected SD if one exists
@@ -497,6 +502,7 @@ gRangeWriting.call(sliderRangeWriting);
 
 // BUTTONS
 $('#buttonFinish').on('click', function(event) {
+  tutorialActive = false;
   $('#flexRow').remove();
   $('#math').show();
   $('#mathText').show();
@@ -594,4 +600,5 @@ let preButton = function() {
   .attr('d', '0.5em')
   .text("a given subject. Click on a district to zoom in.");  
 }
+
 preButton();
