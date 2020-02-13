@@ -117,6 +117,7 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
     mapZ.selectAll('circle').remove();
     selected = null;
   }
+  var districtName;
   if (d && selected !== this && !unselect) { // Select target SD not already selected when clicked on
     d3.select(this)
         .transition()
@@ -126,6 +127,9 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
     selected = this;
     updateZMap(+this.id.substring(2)); // Update zoomed map
   }
+  districtName = this.id.substring(2);
+  console.log("This is name");
+  console.log(districtName);
 
   // This is for Box Plot
   var sat_all = [];
@@ -152,10 +156,10 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
     var max_all = q1_all + 1.5 * interQuantileRange_all;
 
     // Updated plots
-    svg.selectAll("toto").remove(); // can comment this line without any effect.
-    svg.selectAll("rect").remove();
+    //svg.selectAll("toto").remove(); // can comment this line without any effect.
+    //svg.selectAll("rect").remove();
     //svg.select("rect").remove();
-    svg.selectAll("line").remove();
+    //svg.selectAll("line").remove();
 
     // Add the y axis
     //svg.call(d3.axisTop(x));
@@ -163,13 +167,15 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
 
     var center = 100;
     var height = 100;
+    var offset = 30;
     // Add the main line
     svg
     .append("line")
       .attr("y1", center)
       .attr("y2", center)
-      .attr("x1", x(min_all) )
-      .attr("x2", x(max_all) )
+      .attr("x1", x(min_all) + offset)
+      .attr("x2", x(max_all) + offset)
+      .attr("id", "h")
       .attr("stroke", "black")
 
     // Show the box
@@ -177,27 +183,61 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
     svg
     .append("rect")
       .attr("y", center - height/2)
-      .attr("x", x(q1_all) )
+      .attr("x", x(q1_all) + offset)
       .attr("height", height)
       .attr("width", (x(q3_all)-x(q1_all)) )
       .attr("stroke", "black")
+      .attr("id", "changed")
       .style("fill", "#69b3a2")
 
     // show median, min and max horizontal lines
+    // svg
+    // .selectAll("toto")
+    // .data([min_all, median_all, max_all])
+    // .enter()
+    // .append("line")
+    //   .attr("y1", center-height/2)
+    //   .attr("y2", center+height/2)
+    //   .attr("x1", function(d){ return(x(d) + offset)} )
+    //   .attr("x2", function(d){ return(x(d) + offset)} )
+    //   .attr("stroke", "black");
+
     svg
-    .selectAll("toto")
-    .data([min_all, median_all, max_all])
-    .enter()
     .append("line")
       .attr("y1", center-height/2)
       .attr("y2", center+height/2)
-      .attr("x1", function(d){ return(x(d))} )
-      .attr("x2", function(d){ return(x(d))} )
-      .attr("stroke", "black");
+      .attr("x1", x(min_all) + offset)
+      .attr("x2", x(min_all) + offset)
+      .attr("id", "i")
+      .attr("stroke", "black")
+
+    svg
+    .append("line")
+      .attr("y1", center-height/2)
+      .attr("y2", center+height/2)
+      .attr("x1", x(median_all) + offset)
+      .attr("x2", x(median_all) + offset)
+      .attr("id", "j")
+      .attr("stroke", "black")
+
+    svg
+    .append("line")
+      .attr("y1", center-height/2)
+      .attr("y2", center+height/2)
+      .attr("x1", x(max_all) + offset)
+      .attr("x2", x(max_all) + offset)
+      .attr("id", "k")
+      .attr("stroke", "black")
+
 
 
   });
 
+  svg.select("#changed").remove();
+  svg.select("#h").remove();
+  svg.select("#i").remove();
+  svg.select("#j").remove();
+  svg.select("#k").remove();
 
 }
 
@@ -230,6 +270,8 @@ var x = d3.scaleLinear()
 svg.append("g")
      .attr("transform", "translate(30, 180)")
      .call(d3.axisTop(x));
+
+
 
 // MOUSE EVENTS ZOOMED MAP ////////////////////////////////////////////////////////////////
 let zMouseOver = function(d) { // Highlight school on mouseover
@@ -607,13 +649,31 @@ gRangeWriting.call(sliderRangeWriting);
 $('#buttonFinish').on('click', function(event) {
   tutorialActive = false;
   $('#flexRow').remove();
-  $('#math').show();
-  $('#mathText').show();
-  $('#reading').show();
-  $('#readingText').show();
-  $('#writing').show();
-  $('#writingText').show();
-  mapZ.selectAll('text').remove();
+  $('#math').fadeIn(500, function() {
+    $(this).show();
+  })
+  $('#mathText').fadeIn(500, function() {
+    $(this).show();
+  })
+  $('#reading').fadeIn(500, function() {
+    $(this).show();
+  })
+  $('#readingText').fadeIn(500, function() {
+    $(this).show();
+  })
+  $('#writing').fadeIn(500, function() {
+    $(this).show();
+  })
+  $('#writingText').fadeIn(500, function() {
+    $(this).show();
+  })
+
+ mapZ.selectAll('text')
+    .transition()
+    .duration(200)
+    .style('opacity', 0)
+    .remove()
+
   map.selectAll("path")
   .attr("fill", function(d) {
       return mapFillColor;
