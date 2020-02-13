@@ -278,46 +278,30 @@ map.selectAll('path')
 }
 drawMapDefault();
 
-let updateMapPoints = function(rangeMath, rangeReading, rangeWriting) {
-  // Add circle to map for each school data point
-  map.selectAll('circle').remove();
-  d3.csv(scoresCsv).then(function(d) {
-    scores = d; // Save scores to global variable
-    map.selectAll('circle')
-      .data(d)
-      .enter()
-      .filter(function(d) { 
-        var math = d["Average Score (SAT Math)"]; 
-        var reading = d["Average Score (SAT Reading)"];
-        var writing = d["Average Score (SAT Writing)"]; 
-
-        var mathInRange = math >= rangeMath[0] && math <= rangeMath[1];
-        var readingInRange = reading >= rangeReading[0] && reading <= rangeReading[1];
-        var writingInRange = writing >= rangeWriting[0] && writing <= rangeWriting[1];
-
-        if (mathInRange && readingInRange && writingInRange)
-          return true;
-        else 
-          return false; })
-      .append('circle')
-        .attr('cx', function(d) {
-          return projection([d.Longitude, d.Latitude])[0];
-        })
-        .attr('cy', function(d) {
-          return projection([d.Longitude, d.Latitude])[1];
-        })
-        .attr('r', pointRadius)
-        .attr('class', function(d) {
-          return 'School'
-        })
-        .attr('pointer-events', 'none')
-        .style('fill', pointColor)
-        .style('stroke', pointStrokeColor)
-        .style('stroke-width', pointStrokeWidth)
-        .style('opacity', pointOpacity);
-  });
-}
-updateMapPoints(rangeMath, rangeReading, rangeWriting);
+// Add circle to map for each school data point
+d3.csv(scoresCsv).then(function(d) {
+  scores = d; // Save scores to global variable
+  map.selectAll('circle')
+    .data(d)
+    .enter()
+    .append('circle')
+      .attr('cx', function(d) {
+        return projection([d.Longitude, d.Latitude])[0];
+      })
+      .attr('cy', function(d) {
+        return projection([d.Longitude, d.Latitude])[1];
+      })
+      .attr('r', pointRadius)
+      .attr('class', function(d) {
+        return 'School'
+      })
+      .attr('pointer-events', 'none')
+      .style('fill', pointColor)
+      .style('stroke', pointStrokeColor)
+      .style('stroke-width', pointStrokeWidth)
+      .style('opacity', pointOpacity);
+});
+// updateMapPoints(map, rangeMath, rangeReading, rangeWriting);
 
 ///////// SCHOOL STATS /////////////
 let updateStats = function(d) {
@@ -459,12 +443,8 @@ let updateZMap = function(sd) {
     })
     .style('opacity', mapOpacity);
   }
-  updateMapZoomedPoints(sd, rangeMath, rangeReading, rangeWriting);
-}
 
-let updateMapZoomedPoints = function(sd, rangeMath, rangeReading, rangeWriting) {
   // Add circle to zoomed map for each school in target SD
-  mapZ.selectAll('circle').remove();
   mapZ.selectAll('circle')
   .data(scores)
   .enter()
@@ -474,16 +454,7 @@ let updateMapZoomedPoints = function(sd, rangeMath, rangeReading, rangeWriting) 
       if (sd === 10) {  // deal with double SD10 geoJSON entries
         inSd = inSd || d.District === '10b'; 
       }
-
-      var mathScore = d[math]; 
-      var readingScore = d[reading]; 
-      var writingScore= d[writing]; 
-
-      var mathInRange = mathScore >= rangeMath[0] && mathScore <= rangeMath[1];
-      var readingInRange = readingScore >= rangeReading[0] && readingScore <= rangeReading[1];
-      var writingInRange = writingScore >= rangeWriting[0] && writingScore <= rangeWriting[1];
-
-      return mathInRange && readingInRange && writingInRange && inSd;
+      return inSd;
     })
     .attr('cx', function(d) {
       return zProjection([d.Longitude, d.Latitude])[0];
@@ -507,6 +478,28 @@ let updateMapZoomedPoints = function(sd, rangeMath, rangeReading, rangeWriting) 
       return d['School Name'] + ' Averages: ' + d[math] + ' Math/' + 
               d[reading] + ' Reading/' + d[writing] +' Writing';
     });
+  filterMapPoints(mapZ, rangeMath, rangeReading, rangeWriting);
+}
+
+// Filter zoomed map points according to slider filters
+let filterMapPoints = function(targetMap, rangeMath, rangeReading, rangeWriting) {
+  targetMap.selectAll('circle')
+      .filter(function(d) {
+        return !(inRange(d[math], rangeMath) && inRange(d[reading], rangeReading) 
+                && inRange(d[writing], rangeWriting))
+      })
+      .style('opacity', 0);
+  targetMap.selectAll('circle')
+      .filter(function(d) {
+        return inRange(d[math], rangeMath) && inRange(d[reading], rangeReading) 
+                && inRange(d[writing], rangeWriting)
+      })
+      .style('opacity', 1);
+}
+
+// Return true if range[0] <= value <= range[1]
+let inRange = function(value, range) {
+  return value >= range[0] && value <= range[1]; 
 }
 
 // SLIDER ELEMENT //////////////////////////////////////////////////////////////////
@@ -520,10 +513,8 @@ var sliderRangeMath = d3ss
 .fill('#2196f3')
 .on('onchange', val => {
   rangeMath = val;
-  updateMapPoints(rangeMath, rangeReading, rangeWriting);
-
-  if (selected != null)
-    updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
+  filterMapPoints(map, rangeMath, rangeReading, rangeWriting)
+  filterMapPoints(mapZ, rangeMath, rangeReading, rangeWriting)
 });
 
 var gRangeMath = d3
@@ -546,10 +537,8 @@ var sliderRangeReading = d3ss
 .fill('#2196f3')
 .on('onchange', val => {
   rangeReading = val;
-  updateMapPoints(rangeMath, rangeReading, rangeWriting);
-
-  if (selected != null)
-    updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
+  filterMapPoints(map, rangeMath, rangeReading, rangeWriting)
+  filterMapPoints(mapZ, rangeMath, rangeReading, rangeWriting)
 });
 
 var gRangeReading = d3
@@ -572,10 +561,8 @@ var sliderRangeWriting = d3ss
 .fill('#2196f3')
 .on('onchange', val => {
   rangeWriting = val;
-  updateMapPoints(rangeMath, rangeReading, rangeWriting);
-
-  if (selected != null)
-    updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
+  filterMapPoints(map, rangeMath, rangeReading, rangeWriting)
+  filterMapPoints(mapZ, rangeMath, rangeReading, rangeWriting)
 });
 
 var gRangeWriting = d3
