@@ -148,23 +148,26 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
     // Updated plots
     svg.selectAll("toto").remove(); // can comment this line without any effect.
     svg.selectAll("rect").remove();
+    //svg.select("rect").remove();
     svg.selectAll("line").remove();
 
     // Add the y axis
-    svg.call(d3.axisBottom(x));
+    //svg.call(d3.axisTop(x));
 
+
+    var center = 100;
+    var height = 100;
     // Add the main line
     svg
     .append("line")
-      .attr("y1", 100)
-      .attr("y2", 100)
+      .attr("y1", center)
+      .attr("y2", center)
       .attr("x1", x(min_all) )
       .attr("x2", x(max_all) )
       .attr("stroke", "black")
 
     // Show the box
-    var center = 100;
-    var height = 100;
+
     svg
     .append("rect")
       .attr("y", center - height/2)
@@ -195,18 +198,18 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
 // Box for Box Plot
 var svg = d3.select("#chart1")
     .append("svg")
-      .attr("width", 800)
-      .attr("height", 200)
-      .attr('x', 1500)
-      .attr('y', 200)
-    .append("g")
+      .attr("width", 600)
+      .attr("height", 300)
+      .attr('x', 0)
+      .attr('y', 0)
       .attr("transform",
             "translate(" + 50 + "," + 50 + ")");
+
 svg.append('rect')
   .attr('x', 0)
   .attr('y', 0)
-  .attr('height', 200)
-  .attr('width', 500)
+  .attr('height', 300)
+  .attr('width', 600)
   .style('stroke', mapBorderColor)
   .style('fill', 'none')
   .style('stroke-width', mapBorderW);
@@ -215,6 +218,13 @@ svg.append('rect')
 var x = d3.scaleLinear()
   .domain([600,2000])
   .range([0, 500]);
+  //.attr("transform", "translate(0, 250)");
+
+svg.append("g")
+     .attr("transform", "translate(50, 200)")
+     .call(d3.axisTop(x));
+  
+//svg.call(d3.axisTop(x));
 
 // MOUSE EVENTS ZOOMED MAP ////////////////////////////////////////////////////////////////
 let zMouseOver = function(d) { // Highlight school on mouseover
