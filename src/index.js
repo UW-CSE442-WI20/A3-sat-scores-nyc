@@ -283,7 +283,7 @@ d3.csv(sdCentersCsv).then(function(d) {
 
 // Updates zoomed map to target SD
 let updateZMap = function(sd) {
-  console.log('DISTRICT ' + sd + ' SELECTED');
+  // console.log('DISTRICT ' + sd + ' SELECTED');
   mapZ.selectAll('path').remove(); // Remove previous SD
   mapZ.selectAll('circle').remove();
   var center = [+centers[sd - 1].lat, +centers[sd - 1].lon]; // target SD coords
@@ -389,30 +389,40 @@ statBox.append('rect')
 
 let updateDistrictStats = function(district) {
   statBox.selectAll('text').remove();
+  var sd = avgScores[district - 1];
 
   statBox.append('text')
   .attr('x', '1em')
   .attr('y', '1em')
   .attr('dy', "0.4em")
-  .text("District #" + district + " (" + avgScores[district - 1].borough + ")");
+  .attr('text-decoration', 'underline')
+  .attr('font-size', '18px')
+  .style('fill', mapFillColor)
+  .text("District #" + district + " (" + sd.borough + ")");
 
   statBox.append('text')
-  .attr('x', '2.5em')
+    .attr('x', '2em')
+    .attr('y', '4.5em')
+    .attr('d', '0.5em')
+    .text('Average total score: ' + (+sd.math_avg + +sd.read_avg + +sd.write_avg));
+
+  statBox.append('text')
+  .attr('x', '16em')
   .attr('y', '3em')
   .attr('d', '0.5em')
-  .text("Average Score (SAT Math): " + avgScores[district - 1].math_avg);
+  .text("Average math score: " + sd.math_avg);
 
   statBox.append('text')
-  .attr('x', '2.5em')
+  .attr('x', '16em')
   .attr('y', '4.5em')
   .attr('d', '0.5em')
-  .text("Average Score (SAT Reading): " + avgScores[district - 1].read_avg);
+  .text("Average reading score: " + sd.read_avg);
 
   statBox.append('text')
-  .attr('x', '2.5em')
+  .attr('x', '16em')
   .attr('y', '6em')
   .attr('d', '0.5em')
-  .text("Average Score (SAT Writing): " +avgScores[district - 1].write_avg);
+  .text("Average writing score: " + sd.write_avg);
 }
 
 let updateStats = function(d) {
@@ -423,25 +433,44 @@ let updateStats = function(d) {
   .attr('x', '1em')
   .attr('y', '1em')
   .attr('dy', "0.4em")
+  .attr('text-decoration', 'underline')
+  .attr('font-size', '15px')
+  .style('fill', '#b04600')
   .text(d[schoolName]);
 
   statBox.append('text')
-  .attr('x', '2.5em')
-  .attr('y', '3em')
-  .attr('d', '0.5em')
-  .text("Average Score (SAT Math): " + d[math]);
+    .attr('x', '2em')
+    .attr('y', '3em')
+    .attr('d', '0.5em')
+    .text('Average total score: ' + (+d[math] + +d[reading] + +d[writing]));
+  statBox.append('text')
+    .attr('x', '2em')
+    .attr('y', '4.5em')
+    .attr('d', '0.5em')
+    .text('Number of students: ' + d['Student Enrollment']);
+  statBox.append('text')
+    .attr('x', '2em')
+    .attr('y', '6em')
+    .attr('d', '0.5em')
+    .text('Students tested: ' + d['Percent Tested']);
 
   statBox.append('text')
-  .attr('x', '2.5em')
-  .attr('y', '4.5em')
-  .attr('d', '0.5em')
-  .text("Average Score (SAT Reading): " + d[reading]);
+    .attr('x', '16em')
+    .attr('y', '3em')
+    .attr('d', '0.5em')
+    .text("Average math score: " + d[math]);
 
   statBox.append('text')
-  .attr('x', '2.5em')
-  .attr('y', '6em')
-  .attr('d', '0.5em')
-  .text("Average Score (SAT Writing): " + d[writing]);
+    .attr('x', '16em')
+    .attr('y', '4.5em')
+    .attr('d', '0.5em')
+    .text("Average reading score: " + d[reading]);
+
+  statBox.append('text')
+    .attr('x', '16em')
+    .attr('y', '6em')
+    .attr('d', '0.5em')
+    .text("Average writing score: " + d[writing]);
 }
 
 // SLIDER ELEMENT //////////////////////////////////////////////////////////////
