@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import * as d3ss from 'd3-simple-slider';
+import $ from "jquery";
 import geoData from './school_districts.json';
 import scoresCsv from './scores.csv';
 import sdCentersCsv from './school_district_centers.csv';
@@ -28,6 +29,9 @@ var mapHoverColor = '#2b506e';
 var mapNonFocusOpacity = 0.6; // non-mouseovered SD opacity
 var mouseTransDuration = 100; // warning: can be glitchy w/ quick mouseovers in succession
 
+// NARRATIVE VARIABLES 
+var lowScoreDistricts = ["sd8", "sd12", "sd11", "sd29", "sd24", "sd19", "sd32", "sd16", "sd23", "sd17", "sd18", "sd21", "sd20", "sd9", "sd7"]
+
 // POINT VARIABLES
 var pointRadius = 2.5;
 var pointColor = '#ff6600';
@@ -41,7 +45,7 @@ var selectedStrokeWidth = 1.6;
 var selectedFillColor = '#2b506e';
 
 // ZOOMED MAP VARIABLES
-var mapScaleFactor = 1.3; // Scale zoomed map to desired dimensions
+var mapScaleFactor = 1.2; // Scale zoomed map to desired dimensions
 var mapZWidth = 350 * mapScaleFactor; // DO NOT CHANGE
 var mapZHeight = 350 * mapScaleFactor; // DO NOT CHANGE
 var mapZStartSD = null; // Load SD on zoomed map at start; null to deactivate
@@ -97,6 +101,7 @@ let overviewMouseLeave = function(d) { // Unhighlight SD on mouse leave
 
 let overviewMouseClick = function(d) { //De/select SD on mouse click
   var unselect = this === selected ? true : false;
+  console.log(this);
   if (selected) { // Unselect selected SD if one exists
     d3.select(selected)
         .transition()
@@ -160,38 +165,30 @@ let zMouseClick = function(d) { // De/select school on mouse click
         .attr('r', zSelectedPointRadius);
     zSelected = this;
 
-    console.log(d);
-
     // update stats box with school stats
     statBox.append('text')
     .attr('x', '1em')
     .attr('y', '1em')
-    .attr('dy', "0.5em")
-    .text('Average SAT Scores per subject for School: ');
-
-    statBox.append('text')
-    .attr('x', '1em')
-    .attr('y', '3em')
     .attr('dy', "0.4em")
     .text(d['School Name']);
 
     statBox.append('text')
     .attr('x', '2.5em')
-    .attr('y', '5em')
+    .attr('y', '3em')
     .attr('d', '0.5em')
-    .text("Math: " + d[math]);
+    .text("Average Score (SAT Math): " + d[math]);
 
     statBox.append('text')
     .attr('x', '2.5em')
-    .attr('y', '6.5em')
+    .attr('y', '4.5em')
     .attr('d', '0.5em')
-    .text("Reading: " + d[reading]);
+    .text("Average Score (SAT Reading): " + d[reading]);
 
     statBox.append('text')
     .attr('x', '2.5em')
-    .attr('y', '8em')
+    .attr('y', '6em')
     .attr('d', '0.5em')
-    .text("Writing: " + d[writing]);
+    .text("Average Score (SAT Writing): " + d[writing]);
   }
 }
 
@@ -222,6 +219,7 @@ var mapBorder = map.append('rect')
     .style('stroke-width', mapBorderW)
     .on('click', overviewMouseClick);
 
+let drawMapDefault = function() {
 // Create map of NYC SDs
 map.selectAll('path')
   .data(geoData.features)
@@ -241,6 +239,8 @@ map.selectAll('path')
     .on('mouseover', overviewMouseOver)
     .on('mouseleave', overviewMouseLeave)
     .on('click', overviewMouseClick);
+}
+drawMapDefault();
 
 let updateMapPoints = function(rangeMath, rangeReading, rangeWriting) {
   // Add circle to map for each school data point
@@ -286,14 +286,14 @@ updateMapPoints(rangeMath, rangeReading, rangeWriting);
 ///////// DISTRICT STATS ///////////
 var statBox = d3.select('#stats')
   .append('svg')
-  .attr('width', mapZWidth + 50)
-  .attr('height', 175);
+  .attr('width', mapZWidth)
+  .attr('height', 110);
 
 statBox.append('rect')
   .attr('x', 0)
   .attr('y', 0)
-  .attr('height', 175)
-  .attr('width', mapZWidth + 50)
+  .attr('height', 110)
+  .attr('width', mapZWidth)
   .style('stroke', mapBorderColor)
   .style('fill', 'none')
   .style('stroke-width', mapBorderW);
@@ -428,7 +428,9 @@ var sliderRangeMath = d3ss
 .on('onchange', val => {
   rangeMath = val;
   updateMapPoints(rangeMath, rangeReading, rangeWriting);
-  updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
+
+  if (selected != null)
+    updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
 });
 
 var gRangeMath = d3
@@ -452,7 +454,9 @@ var sliderRangeReading = d3ss
 .on('onchange', val => {
   rangeReading = val;
   updateMapPoints(rangeMath, rangeReading, rangeWriting);
-  updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
+
+  if (selected != null)
+    updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
 });
 
 var gRangeReading = d3
@@ -476,7 +480,9 @@ var sliderRangeWriting = d3ss
 .on('onchange', val => {
   rangeWriting = val;
   updateMapPoints(rangeMath, rangeReading, rangeWriting);
-  updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
+
+  if (selected != null)
+    updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
 });
 
 var gRangeWriting = d3
@@ -488,3 +494,104 @@ var gRangeWriting = d3
 .attr('transform', 'translate(30,30)');
 
 gRangeWriting.call(sliderRangeWriting);
+
+// BUTTONS
+$('#buttonFinish').on('click', function(event) {
+  $('#flexRow').remove();
+  $('#math').show();
+  $('#mathText').show();
+  $('#reading').show();
+  $('#readingText').show();
+  $('#writing').show();
+  $('#writingText').show();
+  mapZ.selectAll('text').remove();
+  map.selectAll("path")
+  .attr("fill", function(d) {
+      return mapFillColor;
+  });
+});
+
+// adds trend for states that are below average
+let preButton = function() {
+  $('#math').hide();
+  $('#mathText').hide();
+  $('#reading').hide();
+  $('#readingText').hide();
+  $('#writing').hide();
+  $('#writingText').hide();
+
+  map.selectAll("path")
+  .attr("fill", function(d) {
+    if (lowScoreDistricts.indexOf(this.id) >= 0)
+      return 'red';
+    else 
+      return mapFillColor;
+  });
+
+  mapZ.append('text')
+  .attr('x', '1em')
+  .attr('y', '2em')
+  .attr('d', '0.5em')
+  .text("If you take the southern part of New York City as the ");
+
+  mapZ.append('text')
+  .attr('x', '1em')
+  .attr('y', '3.2em')
+  .attr('d', '0.5em')
+  .text("center of interest and you start increasing the minimum");
+
+  mapZ.append('text')
+  .attr('x', '1em')
+  .attr('y', '4.4em')
+  .attr('d', '0.5em')
+  .text("score of each subject, you notice that as we move away" );
+
+  mapZ.append('text')
+  .attr('x', '1em')
+  .attr('y', '5.6em')
+  .attr('d', '0.5em')
+  .text("from the southern part, the schools' performance tends");
+
+  mapZ.append('text')
+  .attr('x', '1em')
+  .attr('y', '6.8em')
+  .attr('d', '0.5em')
+  .text("to get better.");
+
+  mapZ.append('text')
+  .attr('x', '1em')
+  .attr('y', '9.8em')
+  .attr('d', '0.5em')
+  .text("The districts highlighted red indicate the districts that");
+
+  mapZ.append('text')
+  .attr('x', '1em')
+  .attr('y', '11em')
+  .attr('d', '0.5em')
+  .text("did not contain a single school that perfomed better than");
+
+  mapZ.append('text')
+  .attr('x', '1em')
+  .attr('y', '12.2em')
+  .attr('d', '0.5em')
+  .text("the SAT national average for a particular subject.");
+
+  mapZ.append('text')
+  .attr('x', '1em')
+  .attr('y', '15.2em')
+  .attr('d', '0.5em')
+  .text("You can use the sliders at the bottom to filter out");
+
+  mapZ.append('text')
+  .attr('x', '1em')
+  .attr('y', '16.4em')
+  .attr('d', '0.5em')
+  .text("various schools depending on how they performed for");
+
+  mapZ.append('text')
+  .attr('x', '1em')
+  .attr('y', '17.6em')
+  .attr('d', '0.5em')
+  .text("a given subject. Click on a district to zoom in.");  
+}
+preButton();

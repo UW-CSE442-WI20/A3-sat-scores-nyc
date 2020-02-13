@@ -24,7 +24,7 @@
       </div>
 
       <div class="col-5">  <!-- distribution chart and zoomed in map -->
-        <h3>Click on a specific school in the </h3>
+        <p>Click on a specific school within the zoomed-in map to display stats.</p>
         <div id="stats" style="background-color:white"> </div>
         <div id="chart1" style="background-color:white"> </div>
         <div id="map-zoomed" style="background-color:white; margin-top:30px">
@@ -32,22 +32,27 @@
       </div>
     </div>    
 
-    <div class="d-flex flex-row" style="margin-top:30px">
+    <div id="flexRow" class="d-flex flex-row" style="margin-top:30px">
+      <div class="col-1"></div>  <!-- blank column for padding -->
+      <button id="buttonFinish" type="button" class="btn btn-dark" style="margin-left:15px">Finish Tutorial</button>
+    </div>
+
+    <div  id="flexRowSliders" class="d-flex flex-row" style="margin-top:30px">
       <div class="col-1"></div>  <!-- blank column for padding -->
 
       <div class="col-3">
         <div id = 'math' class="d3-slider d3-slider-horizontal"></div>  <!-- slider element -->
-        <p class="text-center">Average Score (SAT Math)</p>
+        <p id = 'mathText' class="text-center">Average Score (SAT Math)</p>
       </div>
 
       <div class="col-3">
         <div id = 'reading' class="d3-slider d3-slider-horizontal"></div>  <!-- slider element -->
-        <p class="text-center">Average Score (SAT Reading)</p>
+        <p id = 'readingText' class="text-center">Average Score (SAT Reading)</p>
       </div>
 
       <div class="col-3">
         <div id = 'writing' class="d3-slider d3-slider-horizontal"></div>  <!-- slider element -->
-        <p class="text-center">Average Score (SAT Writing)</p>
+        <p id = 'writingText' class="text-center">Average Score (SAT Writing)</p>
       </div>
     </div>    
     

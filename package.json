@@ -13,6 +13,8 @@
     "parcel-bundler": "^1.12.4"
   },
   "dependencies": {
-    "d3": "^5.15.0"
+    "d3": "^5.15.0",
+    "d3-simple-slider": "^1.5.4",
+    "jquery": "^3.4.1"
   }
 }
