@@ -138,8 +138,6 @@ d3.csv(scoresCsv).then(function(d) {
 
   }
 
-  console.log(districtToName);
-
   var i;
   for (i = 0; i < 32; i++) {
     districtMathAvg[i] = mathSums[i] / districtCounts[i];
@@ -174,7 +172,7 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
     selected = this;
     updateZMap(+this.id.substring(2)); // Update zoomed map
 
-    var districtNo = d.id
+    var districtNo = d.id + 1;
     updateDistrictStats(districtNo);
   }
 }
@@ -356,7 +354,7 @@ let updateDistrictStats = function(district) {
   .attr('x', '1em')
   .attr('y', '1em')
   .attr('dy', "0.4em")
-  .text(districtToName[district]); // borough
+  .text("District #" + district + " (" + districtToName[district] + ")"); // borough
 
   statBox.append('text')
   .attr('x', '2.5em')
