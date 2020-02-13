@@ -504,13 +504,31 @@ gRangeWriting.call(sliderRangeWriting);
 $('#buttonFinish').on('click', function(event) {
   tutorialActive = false;
   $('#flexRow').remove();
-  $('#math').show();
-  $('#mathText').show();
-  $('#reading').show();
-  $('#readingText').show();
-  $('#writing').show();
-  $('#writingText').show();
-  mapZ.selectAll('text').remove();
+  $('#math').fadeIn(500, function() {
+    $(this).show();
+  })
+  $('#mathText').fadeIn(500, function() {
+    $(this).show();
+  })
+  $('#reading').fadeIn(500, function() {
+    $(this).show();
+  })
+  $('#readingText').fadeIn(500, function() {
+    $(this).show();
+  })
+  $('#writing').fadeIn(500, function() {
+    $(this).show();
+  })
+  $('#writingText').fadeIn(500, function() {
+    $(this).show();
+  })
+
+ mapZ.selectAll('text')
+    .transition()
+    .duration(200)
+    .style('opacity', 0)
+    .remove()
+
   map.selectAll("path")
   .attr("fill", function(d) {
       return mapFillColor;
