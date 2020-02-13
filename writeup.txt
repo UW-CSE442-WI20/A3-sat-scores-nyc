@@ -1,0 +1,24 @@
+A rationale for your design decisions. How did you choose your particular visual encodings and interaction techniques? What alternatives did you consider and how did you arrive at your ultimate choices?
+
+Our main goal for this project was to see if there were any trends in the three categories of the SAT scores: Critical Reading, Writing and Mathematics. We had a few features to work with such as ethnicity, different school districts, and the start/end time of the exams. Our first idea was to showcase the relations between these features in the form of different plots, such as Average SAT score vs Percentage of Asians who took the exams. However we found these plots to be very basic and not that interactive. We then had the idea of showcasing all the schools on a map of the city of New York as we also had access to the latitude and longitude of the schools alongside NYC’s school district boundaries. In order to introduce interactivity, we introduced a feature where the user can click on any particular school district on the map and a zoomed in version of that school district would show up. This would make the readability of the map much easier and also allow the user to click on individual schools, which wasn't possible earlier as the dots (demarcating the schools) were overlapping. When a particular school district or an individual school is selected, the web interface provides the user with information about the selection, such as average SAT scores and number of students enrolled.
+
+We also introduced another interactive feature in the form of sliders which allows the user to select a certain range for the three different SAT scores and based on these ranges, the map of New York City gets updated to filter out schools with average SAT scores that lie outside these ranges. These features allow us to observe which regions of NYC have better performances in SAT examinations and to see if any trends exist or not.
+
+An overview of your development process. Describe how the work was split among the team members. Include a commentary on the development process, including answers to the following questions: Roughly how much time did you spend developing your application (in people-hours)? What aspects took the most time?
+
+Development process:
+Selecting a Dataset
+Performing data-analysis to notice trends
+Coming up Visualization ideas
+Coding
+
+The first task was finding a suitable dataset. We wanted to pick a fun dataset but also wanted to work with some data that was relevant. After much discussion we came down to two options: a Coronavirus dataset or the SAT scores of New York City dataset. There was a problem with the Coronavirus dataset: since the data was collected recently there weren't many data points to work with. As a result, we decided to go with the SAT Score dataset. This process took roughly 2 hours as a group.
+
+The next task was coming up with ways to visualize the dataset and even explore it further by tinkering with it. But in order to come up with a visualization we needed to analyze the data to see if any trends existed. In order to do so, we had to work with the data in Tableau. Using Tableau actually helped us notice trends which we then decided to showcase in our assignment. When it came to the main coding tasks, everything was divided among the group members and we worked individually afterwards. This entire process was roughly a week long with about 20-30 hours spent collectively in developing the visualization. The early stages of the program took the most time, as we had to learn D3, create our graphics from scratch, and bind them together via event listeners.
+
+Tasks were divided in the following ways:
+Kevin: Display of district-wide and school specific stats when clicked on, sliders
+Ishan: Sliders, Tutorial aspect, Filtering of Data on Map
+Johnson: Overview and zoomed map, data wrangling, mouse events
+Mike: Box Plot Generations of the School Data
+Aviral: Data Analysis via Tableau, Sliders
