@@ -105,11 +105,56 @@ let overviewMouseLeave = function(d) { // Unhighlight SD on mouse leave
   }
 };
 
+/// DISTRICT DATA DISPLAY CALCULATIONS ///
+
+var districtMathAvg = new Array(32).fill(0);
+var districtReadingAvg = new Array(32).fill(0);
+var districtWritingAvg = new Array(32).fill(0);
+var districtToName = {};
+
+d3.csv(scoresCsv).then(function(d) {
+
+  var mathSums = new Array(32).fill(0);
+  var readingSums = new Array(32).fill(0);
+  var writingSums = new Array(32).fill(0);
+  var districtCounts = new Array(32).fill(0);
+
+  var row;
+  for (row = 0; row < d.length; row++) {
+    var school = d[row];
+    var districtNumber = parseInt(school.District);
+    var math = parseInt(school['Average Score (SAT Math)']);
+    var reading = parseInt(school['Average Score (SAT Reading)']);
+    var writing = parseInt(school['Average Score (SAT Writing)']);
+
+    districtCounts[districtNumber - 1]++;
+    mathSums[districtNumber - 1] += math;
+    readingSums[districtNumber - 1] += reading;
+    writingSums[districtNumber - 1] += writing;
+
+    if (!(districtNumber in districtToName)) {
+      districtToName[districtNumber] = school.Borough;
+    }
+
+  }
+
+  console.log(districtToName);
+
+  var i;
+  for (i = 0; i < 32; i++) {
+    districtMathAvg[i] = mathSums[i] / districtCounts[i];
+    districtReadingAvg[i] = readingSums[i] / districtCounts[i];
+    districtWritingAvg[i] = writingSums[i] / districtCounts[i];
+  }
+
+});
+
 let overviewMouseClick = function(d) { //De/select SD on mouse click
   if (tutorialActive) { return; }
   var unselect = this === selected ? true : false;
-  console.log(this);
+
   if (selected) { // Unselect selected SD if one exists
+    statBox.selectAll('text').remove();
     d3.select(selected)
         .transition()
         .style('fill', mapFillColor)
@@ -120,7 +165,6 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
     selected = null;
   }
   if (d && selected !== this && !unselect) { // Select target SD not already selected when clicked on
-    statBox.selectAll('text').remove();
     zSelected = null;
     d3.select(this)
         .transition()
@@ -129,6 +173,9 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
         .duration(mouseTransDuration);
     selected = this;
     updateZMap(+this.id.substring(2)); // Update zoomed map
+
+    var districtNo = d.id
+    updateDistrictStats(districtNo);
   }
 }
 
@@ -301,22 +348,50 @@ let updateStats = function(d) {
   .attr('d', '0.5em')
   .text("Average Score (SAT Writing): " + d[writing]);
 }
+
 ///////// DISTRICT STATS ///////////
 var statBox = d3.select('#stats')
   .append('svg')
-  .attr('width', mapZWidth)
+  .attr('width', mapZWidth + 75)
   .attr('height', 110);
 
 statBox.append('rect')
   .attr('x', 0)
   .attr('y', 0)
   .attr('height', 110)
-  .attr('width', mapZWidth)
+  .attr('width', mapZWidth + 75)
   .style('stroke', mapBorderColor)
   .style('fill', 'none')
   .style('stroke-width', mapBorderW);
 
 
+let updateDistrictStats = function(district) {
+  statBox.selectAll('text').remove();
+
+  statBox.append('text')
+  .attr('x', '1em')
+  .attr('y', '1em')
+  .attr('dy', "0.4em")
+  .text(districtToName[district]); // borough
+
+  statBox.append('text')
+  .attr('x', '2.5em')
+  .attr('y', '3em')
+  .attr('d', '0.5em')
+  .text("Average Score (SAT Math): " + Math.round(districtMathAvg[district]));
+
+  statBox.append('text')
+  .attr('x', '2.5em')
+  .attr('y', '4.5em')
+  .attr('d', '0.5em')
+  .text("Average Score (SAT Reading): " + Math.round(districtReadingAvg[district]));
+
+  statBox.append('text')
+  .attr('x', '2.5em')
+  .attr('y', '6em')
+  .attr('d', '0.5em')
+  .text("Average Score (SAT Writing): " + Math.round(districtWritingAvg[district]));
+}
 
 // ZOOMED MAP //////////////////////////////////////////////////////////////////
 // Create zoomed map
