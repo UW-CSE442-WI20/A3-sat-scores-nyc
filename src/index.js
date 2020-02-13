@@ -5,17 +5,18 @@ import geoData from './school_districts.json';
 import scoresCsv from './scores.csv';
 import sdCentersCsv from './school_district_centers.csv';
 
+const schoolName = 'School Name';
 const math = 'Average Score (SAT Math)';
 const reading = 'Average Score (SAT Reading)';
 const writing = 'Average Score (SAT Writing)';
 
+// IMPORTED DATA STORAGE ///////////////////////////////////////////////////////
 var scores = [] // Array of school objects with columns from scores csv
 var districtGeos = new Map(); // Map of SD# to GeoOBJECT
-var nycLoc = [40.7128, 74.0060]; // [lat, lon]
+var nycLoc = [40.7128, 73.9660]; // [lat, lon]
 var centers = []; // Array of SD objects with columns {id, lat, lon, zoom}
 
-// MAP VARIABLES
-var mapOffset = [0, -0.04];  // map centering
+// OVERVIEW MAP VARIABLES //////////////////////////////////////////////////////
 var mapWidth = 600;
 var mapHeight = 600;
 var mapScale = 75000;  // map zoom
@@ -25,31 +26,16 @@ var mapStrokeColor = 'black';
 var mapStrokeWidth = 0.5;
 var mapFillColor = 'steelblue';
 var mapOpacity = 0.9;
-var mapHoverColor = '#2b506e';
-var mapNonFocusOpacity = 0.6; // non-mouseovered SD opacity
-var mouseTransDuration = 100; // warning: can be glitchy w/ quick mouseovers in succession
-
-// NARRATIVE VARIABLES 
-var lowScoreDistricts = ["sd8", "sd12", "sd11", "sd29", "sd24", "sd19", "sd32", "sd16", "sd23", "sd17", "sd18", "sd21", "sd20", "sd9", "sd7"]
-var tutorialActive = true;
-
-// POINT VARIABLES
 var pointRadius = 2.5;
 var pointColor = '#ff6600';
 var pointStrokeColor = 'black'
 var pointStrokeWidth = 0.7;
 var pointOpacity = 1;
 
-// SELECTION VARIABLES
-var selected = null; // Selected SD
-var selectedStrokeWidth = 1.6;
-var selectedFillColor = '#2b506e';
-
-// ZOOMED MAP VARIABLES
+// ZOOMED MAP VARIABLES ////////////////////////////////////////////////////////
 var mapScaleFactor = 1.2; // Scale zoomed map to desired dimensions
 var mapZWidth = 350 * mapScaleFactor; // DO NOT CHANGE
 var mapZHeight = 350 * mapScaleFactor; // DO NOT CHANGE
-var mapZStartSD = null; // Load SD on zoomed map at start; null to deactivate
 var mapZStrokeWidth = 2;
 var mapZFillColor = mapFillColor;
 var zPointRadius = 6;
@@ -57,34 +43,47 @@ var zPointColor = '#ff6600';
 var zPointStrokeColor = 'black'
 var zPointStrokeWidth = 1;
 var zPointOpacity = 1;
+var mapZStartSD = null; // Load SD on zoomed map at start; null to deactivate
 
-// ZOOMED MAP POINT VARIABLES
+// MOUSE EVENT VARIABLES ///////////////////////////////////////////////////////
+var selected = null; // Selected SD
+var mapHoverColor = '#2b506e';
+var selectedStrokeWidth = 1.6;
+var selectedFillColor = '#2b506e';
+var mouseTransDuration = 100; // warning: can be glitchy w/ quick mouseovers
+
 var zSelected = null; // Selected school
+var zHoverColor = '#b04600';
+var zHoverRadius = 8;
 var zSelectedStrokeWidth = 2;
 var zSelectedPointRadius = 8;
 var zSelectedFillColor = '#b04600';
-var zHoverColor = '#b04600';
-var zHoverRadius = 8;
-var zSelected = null;
 
-// SLIDER VARIABLES 
+// SLIDER VARIABLES ////////////////////////////////////////////////////////////
 var rangeMath = [200, 800];
 var rangeReading = [200, 800];
 var rangeWriting = [200, 800];
 var sliderWidth = 500;
 var sliderHeight = 75;
 
+// NARRATIVE VARIABLES /////////////////////////////////////////////////////////
+var lowScoreDistricts = ["sd8", "sd12", "sd11", "sd29", "sd24", "sd19", "sd32", 
+                  "sd16", "sd23", "sd17", "sd18", "sd21", "sd20", "sd9", "sd7"]
+var tutorialActive = true;
+
+////////////////////////////////////////////////////////////////////////////////
+
 // Remap SD geo data to correct keys
 for (var idx in geoData.features) {
   var sd = geoData.features[idx].properties.SchoolDist;
-  if (sd === 10 && districtGeos.has(10)) { // Deal with double SD10 geoJSON entries
-    districtGeos.set(sd + 'b', geoData.features[idx])
+  if (sd === 10 && districtGeos.has(10)) { // Deal with 2x SD10 geoJSON entries
+    districtGeos.set(sd + 'b', geoData.features[idx]);
   } else {
-    districtGeos.set(sd, geoData.features[idx])
+    districtGeos.set(sd, geoData.features[idx]);
   }
 }
 
-// MOUSE EVENTS MAP ////////////////////////////////////////////////////////////////
+// MAP MOUSE EVENTS ////////////////////////////////////////////////////////////
 let overviewMouseOver = function(d) { // Highlight SD on mouseover
   if (tutorialActive) { return; }
   d3.select(this) // Highlight overview target SD
@@ -96,7 +95,6 @@ let overviewMouseOver = function(d) { // Highlight SD on mouseover
 
 let overviewMouseLeave = function(d) { // Unhighlight SD on mouse leave
   if (tutorialActive) { return; }
-
   if (selected != this) { // Do not de-highlight selected SD
     d3.select(this) // De-highlight overview target SD
         .transition()
@@ -105,10 +103,9 @@ let overviewMouseLeave = function(d) { // Unhighlight SD on mouse leave
   }
 };
 
-let overviewMouseClick = function(d) { //De/select SD on mouse click
+let overviewMouseClick = function(d) { // De/select SD on mouse click
   if (tutorialActive) { return; }
-  var unselect = this === selected ? true : false;
-  console.log(this);
+  var unselect = this === selected;
   if (selected) { // Unselect selected SD if one exists
     d3.select(selected)
         .transition()
@@ -117,9 +114,10 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
         .duration(mouseTransDuration);
     mapZ.selectAll('path').remove();
     mapZ.selectAll('circle').remove();
+    statBox.selectAll('text').remove();
     selected = null;
   }
-  if (d && selected !== this && !unselect) { // Select target SD not already selected when clicked on
+  if (d && selected !== this && !unselect) { // Select target SD
     statBox.selectAll('text').remove();
     zSelected = null;
     d3.select(this)
@@ -132,10 +130,10 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
   }
 }
 
-// MOUSE EVENTS ZOOMED MAP ////////////////////////////////////////////////////////////////
+// ZOOMED MAP MOUSE EVENTS /////////////////////////////////////////////////////
 let zMouseOver = function(d) { // Highlight school on mouseover
   if (!zSelected) {
-    updateStats(d)
+    updateStats(d);
   }
   d3.select(this) // Highlight target school
       .transition()
@@ -150,10 +148,10 @@ let zMouseLeave = function(d) { // Unhighlight school on mouse leave
   }
   if (zSelected != this) { // Do not de-highlight selected school
     d3.select(this) // De-highlight target school
-      .transition()
-      .duration(mouseTransDuration)
-      .attr('r', zPointRadius)
-      .style('fill', zPointColor)
+        .transition()
+        .duration(mouseTransDuration)
+        .attr('r', zPointRadius)
+        .style('fill', zPointColor)
   }
 }
 
@@ -169,8 +167,8 @@ let zMouseClick = function(d) { // De/select school on mouse click
         .style('stroke-width', zPointStrokeWidth);
     zSelected = null;
   }
-  if (d && d.type != 'Feature' && zSelected !== this && !unselect) { // Select target school not already selected
-    d3.select(this)
+  if (d && d.type != 'Feature' && zSelected !== this && !unselect) {
+    d3.select(this) // Select target school not already selected
         .transition()
         .duration(mouseTransDuration)
         .style('fill', zSelectedFillColor)
@@ -182,22 +180,18 @@ let zMouseClick = function(d) { // De/select school on mouse click
 }
 
 // OVERVIEW MAP ////////////////////////////////////////////////////////////////
-// Path generator: projection centered on NYC and scaled
-var projection = d3.geoAlbers()
-    .center([0, nycLoc[0] + mapOffset[0]])
-    .rotate([nycLoc[1] + mapOffset[1], 0])
+var projection = d3.geoAlbers() // centered on NYC and scaled
+    .center([0, nycLoc[0]])
+    .rotate([nycLoc[1], 0])
     .translate([mapWidth/2, mapHeight/2])
     .scale([mapScale]);
 var path = d3.geoPath().projection(projection);
 
-// Create Map SVG element
-var map = d3.select('#map')
+var map = d3.select('#map') // Create Map SVG element
   .append('svg')
     .attr('width', mapWidth)
     .attr('height', mapHeight);
-
-// Create border on Map
-var mapBorder = map.append('rect')
+map.append('rect') // Create border on Map
     .attr('x', 0)
     .attr('y', 0)
     .attr('height', mapHeight)
@@ -206,33 +200,28 @@ var mapBorder = map.append('rect')
     .style('stroke', mapBorderColor)
     .style('fill', 'none')
     .style('stroke-width', mapBorderW)
-    .on('click', overviewMouseClick);
+    .on('click', overviewMouseClick); // Allow background click to deselect
 
-let drawMapDefault = function() {
-// Create map of NYC SDs
-map.selectAll('path')
+map.selectAll('path') // Create map of NYC SDs
   .data(geoData.features)
   .enter()
   .append('path')
-    .attr('d', path)
-    .attr('stroke', mapStrokeColor)
-    .attr('stroke-width', mapStrokeWidth)
-    .attr('fill', mapFillColor)
-    .attr('class', function(d) {
-      return 'District'
-    })
-    .attr('id', function(d) {
-      return 'sd' + d.properties.SchoolDist;
-    })
-    .style('opacity', mapOpacity)
-    .on('mouseover', overviewMouseOver)
-    .on('mouseleave', overviewMouseLeave)
-    .on('click', overviewMouseClick);
-}
-drawMapDefault();
+      .attr('d', path)
+      .attr('stroke', mapStrokeColor)
+      .attr('stroke-width', mapStrokeWidth)
+      .attr('fill', mapFillColor)
+      .attr('class', function(d) {
+        return 'District'
+      })
+      .attr('id', function(d) {
+        return 'sd' + d.properties.SchoolDist;
+      })
+      .style('opacity', mapOpacity)
+      .on('mouseover', overviewMouseOver)
+      .on('mouseleave', overviewMouseLeave)
+      .on('click', overviewMouseClick);
 
-// Add circle to map for each school data point
-d3.csv(scoresCsv).then(function(d) {
+d3.csv(scoresCsv).then(function(d) { // Add point to map for each school
   scores = d; // Save scores to global variable
   map.selectAll('circle')
     .data(d)
@@ -254,7 +243,6 @@ d3.csv(scoresCsv).then(function(d) {
       .style('stroke-width', pointStrokeWidth)
       .style('opacity', pointOpacity);
 });
-// updateMapPoints(map, rangeMath, rangeReading, rangeWriting);
 
 ///////// SCHOOL STATS /////////////
 let updateStats = function(d) {
@@ -265,7 +253,7 @@ let updateStats = function(d) {
   .attr('x', '1em')
   .attr('y', '1em')
   .attr('dy', "0.4em")
-  .text(d['School Name']);
+  .text(d[schoolName]);
 
   statBox.append('text')
   .attr('x', '2.5em')
@@ -285,7 +273,8 @@ let updateStats = function(d) {
   .attr('d', '0.5em')
   .text("Average Score (SAT Writing): " + d[writing]);
 }
-///////// DISTRICT STATS ///////////
+
+// DISTRICT STATS //////////////////////////////////////////////////////////////
 var statBox = d3.select('#stats')
   .append('svg')
   .attr('width', mapZWidth)
@@ -300,11 +289,12 @@ statBox.append('rect')
   .style('fill', 'none')
   .style('stroke-width', mapBorderW);
 
-
-
 // ZOOMED MAP //////////////////////////////////////////////////////////////////
-// Create zoomed map
-var mapZ = d3.select('#map-zoomed')
+var zProjection = d3.geoAlbers()
+    .translate([mapZWidth/2, mapZHeight/2])
+var zPath = d3.geoPath().projection(zProjection);
+
+var mapZ = d3.select('#map-zoomed') // Create zoomed map
   .append('svg')
     .attr('width', mapZWidth)
     .attr('height', mapZHeight);
@@ -319,12 +309,7 @@ mapZ.append('rect')
     .style('stroke-width', mapBorderW)
     .on('click', zMouseClick);
 
-// Create zoomed path generator
-var zProjection = d3.geoAlbers()
-    .translate([mapZWidth/2, mapZHeight/2])
-var zPath = d3.geoPath().projection(zProjection);
-
-// Load in csv of SD center lat/long coords, set zoomed map to mapZStartSD at start
+// Load in csv of SD center lat/long coords, set zoomed map to mapZStartSD
 d3.csv(sdCentersCsv).then(function(d) {
   centers = d; // Save center coords to global variable
   if (mapZStartSD) {
@@ -336,16 +321,14 @@ d3.csv(sdCentersCsv).then(function(d) {
 let updateZMap = function(sd) {
   mapZ.selectAll('path').remove(); // Remove previous SD
   mapZ.selectAll('circle').remove();
-  var center = [+centers[sd - 1].lat, +centers[sd - 1].lon]; // target SD center coords
+  var center = [+centers[sd - 1].lat, +centers[sd - 1].lon]; // target SD coords
 
-  // Update zoomed path generator to target SD
-  zProjection.center([0, center[0]])
+  zProjection.center([0, center[0]]) // Update path generator to target SD
       .rotate([center[1], 0])
       .scale(+centers[sd - 1].zoom * mapScaleFactor);
   zPath = d3.geoPath().projection(zProjection);
 
-  // Draw target SD on zoomed map
-  mapZ.append('path')
+  mapZ.append('path') // Draw target SD on zoomed map
       .datum(districtGeos.get(sd))
       .attr('d', zPath)
       .attr('stroke', mapStrokeColor)
@@ -369,12 +352,11 @@ let updateZMap = function(sd) {
     .style('opacity', mapOpacity);
   }
 
-  // Add circle to zoomed map for each school in target SD
-  mapZ.selectAll('circle')
+  mapZ.selectAll('circle') // Add point to zMap for each school in target SD
   .data(scores)
   .enter()
   .append('circle')
-    .filter(function(d) { // Filter schools only in target SD and in slider ranges
+    .filter(function(d) { // Filter schools only in target SD and slider ranges
       var inSd = +d.District === sd;
       if (sd === 10) {  // deal with double SD10 geoJSON entries
         inSd = inSd || d.District === '10b'; 
@@ -400,7 +382,7 @@ let updateZMap = function(sd) {
     .on('click', zMouseClick)
   .append('title') // Tooltip: {SchoolName: avgMath/avgReading/avgWriting}
     .text(function(d) {
-      return d['School Name'] + ' Averages: ' + d[math] + ' Math/' + 
+      return d[schoolName] + ' Averages: ' + d[math] + ' Math/' + 
               d[reading] + ' Reading/' + d[writing] +' Writing';
     });
   filterMapPoints(mapZ, rangeMath, rangeReading, rangeWriting);
@@ -408,100 +390,74 @@ let updateZMap = function(sd) {
 
 // Filter zoomed map points according to slider filters
 let filterMapPoints = function(targetMap, rangeMath, rangeReading, rangeWriting) {
-  targetMap.selectAll('circle')
+  targetMap.selectAll('circle') // Hide all points out of range
       .filter(function(d) {
         return !(inRange(d[math], rangeMath) && inRange(d[reading], rangeReading) 
-                && inRange(d[writing], rangeWriting))
+                && inRange(d[writing], rangeWriting));
       })
       .style('opacity', 0);
-  targetMap.selectAll('circle')
+  targetMap.selectAll('circle') // Show all points in range
       .filter(function(d) {
         return inRange(d[math], rangeMath) && inRange(d[reading], rangeReading) 
-                && inRange(d[writing], rangeWriting)
+                && inRange(d[writing], rangeWriting);
       })
       .style('opacity', 1);
 }
 
-// Return true if range[0] <= value <= range[1]
-let inRange = function(value, range) {
+let inRange = function(value, range) { // True if range[0] <= value <= range[1]
   return value >= range[0] && value <= range[1]; 
 }
 
-// SLIDER ELEMENT //////////////////////////////////////////////////////////////////
-var sliderRangeMath = d3ss
-.sliderBottom()
-.width(300)
-.ticks(8)
-.min(0)
-.max(800)
-.default([200, 800])
-.fill('#2196f3')
-.on('onchange', val => {
+
+// SLIDER ELEMENT //////////////////////////////////////////////////////////////
+let createSlider = function() { // Create slider helper
+  return d3ss.sliderBottom()
+      .width(300)
+      .ticks(8)
+      .min(0)
+      .max(800)
+      .default([200, 800])
+      .fill('#2196f3');
+}
+
+let createSliderSvg = function(id) { // Create slider svg helper
+  return d3.select(id)
+      .append('svg')
+      .attr('width', sliderWidth)
+      .attr('height', sliderHeight)
+      .append('g')
+      .attr('transform', 'translate(30,30)');
+}
+
+var sliderRangeMath = createSlider(); // Create math slider
+sliderRangeMath.on('onchange', val => {
   rangeMath = val;
-  filterMapPoints(map, rangeMath, rangeReading, rangeWriting)
-  filterMapPoints(mapZ, rangeMath, rangeReading, rangeWriting)
+  filterMapPoints(map, rangeMath, rangeReading, rangeWriting);
+  filterMapPoints(mapZ, rangeMath, rangeReading, rangeWriting);
 });
-
-var gRangeMath = d3
-.select('#math')
-.append('svg')
-.attr('width', sliderWidth)
-.attr('height', sliderHeight)
-.append('g')
-.attr('transform', 'translate(30,30)');
-
+var gRangeMath = createSliderSvg('#math');
 gRangeMath.call(sliderRangeMath);
 
-var sliderRangeReading = d3ss
-.sliderBottom()
-.width(300)
-.ticks(8)
-.min(0)
-.max(800)
-.default([200, 800])
-.fill('#2196f3')
-.on('onchange', val => {
+var sliderRangeReading = createSlider(); // Create reading slider
+sliderRangeReading.on('onchange', val => {
   rangeReading = val;
-  filterMapPoints(map, rangeMath, rangeReading, rangeWriting)
-  filterMapPoints(mapZ, rangeMath, rangeReading, rangeWriting)
+  filterMapPoints(map, rangeMath, rangeReading, rangeWriting);
+  filterMapPoints(mapZ, rangeMath, rangeReading, rangeWriting);
 });
-
-var gRangeReading = d3
-.select('#reading')
-.append('svg')
-.attr('width', sliderWidth)
-.attr('height', sliderHeight)
-.append('g')
-.attr('transform', 'translate(30,30)');
-
+var gRangeReading = createSliderSvg('#reading');
 gRangeReading.call(sliderRangeReading);
 
-var sliderRangeWriting = d3ss
-.sliderBottom()
-.width(300)
-.ticks(8)
-.min(0)
-.max(800)
-.default([200, 800])
-.fill('#2196f3')
-.on('onchange', val => {
+var sliderRangeWriting = createSlider(); // Create writing slider
+sliderRangeWriting.on('onchange', val => {
   rangeWriting = val;
-  filterMapPoints(map, rangeMath, rangeReading, rangeWriting)
-  filterMapPoints(mapZ, rangeMath, rangeReading, rangeWriting)
+  filterMapPoints(map, rangeMath, rangeReading, rangeWriting);
+  filterMapPoints(mapZ, rangeMath, rangeReading, rangeWriting);
 });
-
-var gRangeWriting = d3
-.select('#writing')
-.append('svg')
-.attr('width', sliderWidth)
-.attr('height', sliderHeight)
-.append('g')
-.attr('transform', 'translate(30,30)');
-
+var gRangeWriting = createSliderSvg('#writing');
 gRangeWriting.call(sliderRangeWriting);
 
-// BUTTONS
-$('#buttonFinish').on('click', function(event) {
+// BUTTONS /////////////////////////////////////////////////////////////////////
+$('#buttonFinish').on('click', function(event) { // Finished button
   tutorialActive = false;
   $('#flexRow').remove();
   $('#math').fadeIn(500, function() {
@@ -521,21 +477,21 @@ $('#buttonFinish').on('click', function(event) {
   });
   $('#writingText').fadeIn(500, function() {
     $(this).show();
-});
-
- mapZ.selectAll('text')
-    .transition()
-    .duration(200)
-    .style('opacity', 0)
-    .remove()
-
-  map.selectAll("path")
-  .attr("fill", function(d) {
-      return mapFillColor;
   });
+
+  mapZ.selectAll('text') // Remove narrative text
+      .transition()
+      .duration(200)
+      .style('opacity', 0)
+      .remove()
+
+  map.selectAll("path") // Return overview map to default fill color
+      .attr("fill", function(d) {
+          return mapFillColor;
+      });
 });
 
-// adds trend for states that are below average
+// Adds trend for states that are below average
 let preButton = function() {
   $('#math').hide();
   $('#mathText').hide();
@@ -546,10 +502,11 @@ let preButton = function() {
 
   map.selectAll("path")
   .attr("fill", function(d) {
-    if (lowScoreDistricts.indexOf(this.id) >= 0)
+    if (lowScoreDistricts.indexOf(this.id) >= 0) {
       return 'red';
-    else 
+    } else {
       return mapFillColor;
+    }
   });
 
   mapZ.append('text')
@@ -618,5 +575,4 @@ let preButton = function() {
   .attr('d', '0.5em')
   .text("a given subject. Click on a district to zoom in.");  
 }
-
 preButton();
