@@ -139,8 +139,11 @@ let zMouseLeave = function(d) { // Unhighlight school on mouse leave
 }
 
 let zMouseClick = function(d) { // De/select school on mouse click
-  var unselect = this === zSelected ? true : false; 
+  var unselect = this === zSelected;
   if (zSelected) { // Unselect selected school if one exists
+    // remove school information
+    statBox.selectAll('text').remove();
+
     d3.select(zSelected)
         .transition()
         .duration(mouseTransDuration)
@@ -157,6 +160,39 @@ let zMouseClick = function(d) { // De/select school on mouse click
         .style('stroke-width', zSelectedStrokeWidth)
         .attr('r', zSelectedPointRadius);
     zSelected = this;
+
+    console.log(d);
+
+    // update stats box with school stats
+    statBox.append('text')
+    .attr('x', '1em')
+    .attr('y', '1em')
+    .attr('dy', "0.5em")
+    .text('Average SAT Scores per subject for School: ');
+
+    statBox.append('text')
+    .attr('x', '1em')
+    .attr('y', '3em')
+    .attr('dy', "0.4em")
+    .text(d['School Name']);
+
+    statBox.append('text')
+    .attr('x', '2.5em')
+    .attr('y', '5em')
+    .attr('d', '0.5em')
+    .text("Math: " + d[math]);
+
+    statBox.append('text')
+    .attr('x', '2.5em')
+    .attr('y', '6.5em')
+    .attr('d', '0.5em')
+    .text("Reading: " + d[reading]);
+
+    statBox.append('text')
+    .attr('x', '2.5em')
+    .attr('y', '8em')
+    .attr('d', '0.5em')
+    .text("Writing: " + d[writing]);
   }
 }
 
@@ -185,7 +221,7 @@ var mapBorder = map.append('rect')
     .style('stroke', mapBorderColor)
     .style('fill', 'none')
     .style('stroke-width', mapBorderW)
-    .on('click', overviewMouseClick);;
+    .on('click', overviewMouseClick);
 
 // Create map of NYC SDs
 map.selectAll('path')
@@ -217,7 +253,7 @@ let updateMapPoints = function(rangeMath, rangeReading, rangeWriting) {
       .enter()
       .filter(function(d) { 
         var math = d["Average Score (SAT Math)"]; 
-        var reading = d["Average Score (SAT Reading)"]; 
+        var reading = d["Average Score (SAT Reading)"];
         var writing = d["Average Score (SAT Writing)"]; 
 
         var mathInRange = math >= rangeMath[0] && math <= rangeMath[1];
@@ -247,6 +283,23 @@ let updateMapPoints = function(rangeMath, rangeReading, rangeWriting) {
   });
 }
 updateMapPoints(rangeMath, rangeReading, rangeWriting);
+
+///////// DISTRICT STATS ///////////
+var statBox = d3.select('#stats')
+  .append('svg')
+  .attr('width', mapZWidth + 50)
+  .attr('height', 175);
+
+statBox.append('rect')
+  .attr('x', 0)
+  .attr('y', 0)
+  .attr('height', 175)
+  .attr('width', mapZWidth + 50)
+  .style('stroke', mapBorderColor)
+  .style('fill', 'none')
+  .style('stroke-width', mapBorderW);
+
+
 
 // ZOOMED MAP //////////////////////////////////////////////////////////////////
 // Create zoomed map
