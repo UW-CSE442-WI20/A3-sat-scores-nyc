@@ -71,6 +71,8 @@ var zSelected = null;
 var rangeMath = [200, 800];
 var rangeReading = [200, 800];
 var rangeWriting = [200, 800];
+var sliderWidth = 500;
+var sliderHeight = 75;
 
 // Remap SD geo data to correct keys
 for (var idx in geoData.features) {
@@ -118,6 +120,8 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
     selected = null;
   }
   if (d && selected !== this && !unselect) { // Select target SD not already selected when clicked on
+    statBox.selectAll('text').remove();
+    zSelected = null;
     d3.select(this)
         .transition()
         .style('fill', selectedFillColor)
@@ -130,6 +134,9 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
 
 // MOUSE EVENTS ZOOMED MAP ////////////////////////////////////////////////////////////////
 let zMouseOver = function(d) { // Highlight school on mouseover
+  if (!zSelected) {
+    updateStats(d)
+  }
   d3.select(this) // Highlight target school
       .transition()
       .duration(mouseTransDuration)
@@ -138,6 +145,9 @@ let zMouseOver = function(d) { // Highlight school on mouseover
 }
 
 let zMouseLeave = function(d) { // Unhighlight school on mouse leave
+  if (!zSelected) {
+    statBox.selectAll('text').remove();
+  }
   if (zSelected != this) { // Do not de-highlight selected school
     d3.select(this) // De-highlight target school
       .transition()
@@ -150,9 +160,7 @@ let zMouseLeave = function(d) { // Unhighlight school on mouse leave
 let zMouseClick = function(d) { // De/select school on mouse click
   var unselect = this === zSelected;
   if (zSelected) { // Unselect selected school if one exists
-    // remove school information
     statBox.selectAll('text').remove();
-
     d3.select(zSelected)
         .transition()
         .duration(mouseTransDuration)
@@ -169,31 +177,7 @@ let zMouseClick = function(d) { // De/select school on mouse click
         .style('stroke-width', zSelectedStrokeWidth)
         .attr('r', zSelectedPointRadius);
     zSelected = this;
-
-    // update stats box with school stats
-    statBox.append('text')
-    .attr('x', '1em')
-    .attr('y', '1em')
-    .attr('dy', "0.4em")
-    .text(d['School Name']);
-
-    statBox.append('text')
-    .attr('x', '2.5em')
-    .attr('y', '3em')
-    .attr('d', '0.5em')
-    .text("Average Score (SAT Math): " + d[math]);
-
-    statBox.append('text')
-    .attr('x', '2.5em')
-    .attr('y', '4.5em')
-    .attr('d', '0.5em')
-    .text("Average Score (SAT Reading): " + d[reading]);
-
-    statBox.append('text')
-    .attr('x', '2.5em')
-    .attr('y', '6em')
-    .attr('d', '0.5em')
-    .text("Average Score (SAT Writing): " + d[writing]);
+    updateStats(d);
   }
 }
 
@@ -288,6 +272,35 @@ let updateMapPoints = function(rangeMath, rangeReading, rangeWriting) {
 }
 updateMapPoints(rangeMath, rangeReading, rangeWriting);
 
+///////// SCHOOL STATS /////////////
+let updateStats = function(d) {
+  // remove school information
+  statBox.selectAll('text').remove();
+
+  statBox.append('text')
+  .attr('x', '1em')
+  .attr('y', '1em')
+  .attr('dy', "0.4em")
+  .text(d['School Name']);
+
+  statBox.append('text')
+  .attr('x', '2.5em')
+  .attr('y', '3em')
+  .attr('d', '0.5em')
+  .text("Average Score (SAT Math): " + d[math]);
+
+  statBox.append('text')
+  .attr('x', '2.5em')
+  .attr('y', '4.5em')
+  .attr('d', '0.5em')
+  .text("Average Score (SAT Reading): " + d[reading]);
+
+  statBox.append('text')
+  .attr('x', '2.5em')
+  .attr('y', '6em')
+  .attr('d', '0.5em')
+  .text("Average Score (SAT Writing): " + d[writing]);
+}
 ///////// DISTRICT STATS ///////////
 var statBox = d3.select('#stats')
   .append('svg')
@@ -441,8 +454,8 @@ var sliderRangeMath = d3ss
 var gRangeMath = d3
 .select('#math')
 .append('svg')
-.attr('width', 500)
-.attr('height', 100)
+.attr('width', sliderWidth)
+.attr('height', sliderHeight)
 .append('g')
 .attr('transform', 'translate(30,30)');
 
@@ -467,8 +480,8 @@ var sliderRangeReading = d3ss
 var gRangeReading = d3
 .select('#reading')
 .append('svg')
-.attr('width', 500)
-.attr('height', 100)
+.attr('width', sliderWidth)
+.attr('height', sliderHeight)
 .append('g')
 .attr('transform', 'translate(30,30)');
 
@@ -493,8 +506,8 @@ var sliderRangeWriting = d3ss
 var gRangeWriting = d3
 .select('#writing')
 .append('svg')
-.attr('width', 500)
-.attr('height', 100)
+.attr('width', sliderWidth)
+.attr('height', sliderHeight)
 .append('g')
 .attr('transform', 'translate(30,30)');
 
@@ -506,22 +519,22 @@ $('#buttonFinish').on('click', function(event) {
   $('#flexRow').remove();
   $('#math').fadeIn(500, function() {
     $(this).show();
-  })
+  });
   $('#mathText').fadeIn(500, function() {
     $(this).show();
-  })
+  });
   $('#reading').fadeIn(500, function() {
     $(this).show();
-  })
+  });
   $('#readingText').fadeIn(500, function() {
     $(this).show();
-  })
+  });
   $('#writing').fadeIn(500, function() {
     $(this).show();
-  })
+  });
   $('#writingText').fadeIn(500, function() {
     $(this).show();
-  })
+});
 
  mapZ.selectAll('text')
     .transition()
