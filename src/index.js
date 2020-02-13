@@ -387,6 +387,27 @@ let updateZMap = function(sd) {
   updateMapZoomedPoints(sd, rangeMath, rangeReading, rangeWriting);
 }
 
+// Filter zoomed map points according to slider filters
+let filterMapZoomedPoints = function(rangeMath, rangeReading, rangeWriting) {
+  mapZ.selectAll('circle')
+      .filter(function(d) {
+        return !(inRange(d[math], rangeMath) && inRange(d[reading], rangeReading) 
+                && inRange(d[writing], rangeWriting))
+      })
+      .style('opacity', 0);
+  mapZ.selectAll('circle')
+      .filter(function(d) {
+        return inRange(d[math], rangeMath) && inRange(d[reading], rangeReading) 
+                && inRange(d[writing], rangeWriting)
+      })
+      .style('opacity', 1);
+}
+
+// Return true if range[0] <= value <= range[1]
+let inRange = function(value, range) {
+  return value >= range[0] && value <= range[1]; 
+}
+
 let updateMapZoomedPoints = function(sd, rangeMath, rangeReading, rangeWriting) {
   // Add circle to zoomed map for each school in target SD
   mapZ.selectAll('circle').remove();
@@ -446,9 +467,7 @@ var sliderRangeMath = d3ss
 .on('onchange', val => {
   rangeMath = val;
   updateMapPoints(rangeMath, rangeReading, rangeWriting);
-
-  if (selected != null)
-    updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
+  filterMapZoomedPoints(rangeMath, rangeReading, rangeWriting)
 });
 
 var gRangeMath = d3
@@ -472,9 +491,7 @@ var sliderRangeReading = d3ss
 .on('onchange', val => {
   rangeReading = val;
   updateMapPoints(rangeMath, rangeReading, rangeWriting);
-
-  if (selected != null)
-    updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
+  filterMapZoomedPoints(rangeMath, rangeReading, rangeWriting)
 });
 
 var gRangeReading = d3
@@ -498,9 +515,7 @@ var sliderRangeWriting = d3ss
 .on('onchange', val => {
   rangeWriting = val;
   updateMapPoints(rangeMath, rangeReading, rangeWriting);
-
-  if (selected != null)
-    updateMapZoomedPoints(+selected.id.substring(2), rangeMath, rangeReading, rangeWriting);
+  filterMapZoomedPoints(rangeMath, rangeReading, rangeWriting)
 });
 
 var gRangeWriting = d3
