@@ -125,6 +125,7 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
     statBox.selectAll('text').remove();
     selected = null;
   }
+  var districtName;
   if (d && selected !== this && !unselect) { // Select target SD
     statBox.selectAll('text').remove();
     zSelected = null;
@@ -137,7 +138,153 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
     updateZMap(+this.id.substring(2)); // Update zoomed map
     updateDistrictStats(+this.id.substring(2)); // Update text box
   }
+
+  districtName = this.id.substring(2);
+  console.log("This is name");
+  console.log(districtName);
+
+
+  // This is for Box Plot
+  var sat_all = [];
+  d3.csv(scoresCsv).then(function(data){
+    data.forEach(function(d){
+      if (d.District === districtName)
+      {
+        
+          sat_all.push(parseFloat(d["Average Score (SAT Math)"]) + parseFloat(d["Average Score (SAT Reading)"]) + parseFloat(d["Average Score (SAT Writing)"]));
+        
+      }
+      //console.log(d3.geoContains(cool, [parseFloat(d.Longitude), parseFloat(d.Latitude)]));
+      
+    });
+
+    sat_all.sort(function(a, b){return a-b});
+    console.log(sat_all); ////
+    // Find q1, median and q3
+    var q1_all = d3.quantile(sat_all, .25);
+    var median_all = d3.quantile(sat_all, .5);
+    var q3_all = d3.quantile(sat_all, .75);
+    var interQuantileRange_all = q3_all - q1_all;
+    var min_all = q1_all - 1.5 * interQuantileRange_all;
+    var max_all = q1_all + 1.5 * interQuantileRange_all;
+
+    // Updated plots
+    //svg.selectAll("toto").remove(); // can comment this line without any effect.
+    //svg.selectAll("rect").remove();
+    //svg.select("rect").remove();
+    //svg.selectAll("line").remove();
+
+    // Add the y axis
+    //svg.call(d3.axisTop(x));
+
+
+    var center = 100;
+    var height = 100;
+    var offset = 40;
+    // Add the main line
+    svg
+    .append("line")
+      .attr("y1", center)
+      .attr("y2", center)
+      .attr("x1", x(min_all) + offset)
+      .attr("x2", x(max_all) + offset)
+      .attr("id", "h")
+      .attr("stroke", "black")
+
+    // Show the box
+
+    svg
+    .append("rect")
+      .attr("y", center - height/2)
+      .attr("x", x(q1_all) + offset)
+      .attr("height", height)
+      .attr("width", (x(q3_all)-x(q1_all)) )
+      .attr("stroke", "black")
+      .attr("id", "changed")
+      .style("fill", "#69b3a2")
+
+    // show median, min and max horizontal lines
+    // svg
+    // .selectAll("toto")
+    // .data([min_all, median_all, max_all])
+    // .enter()
+    // .append("line")
+    //   .attr("y1", center-height/2)
+    //   .attr("y2", center+height/2)
+    //   .attr("x1", function(d){ return(x(d) + offset)} )
+    //   .attr("x2", function(d){ return(x(d) + offset)} )
+    //   .attr("stroke", "black");
+
+    svg
+    .append("line")
+      .attr("y1", center-height/2)
+      .attr("y2", center+height/2)
+      .attr("x1", x(min_all) + offset)
+      .attr("x2", x(min_all) + offset)
+      .attr("id", "i")
+      .attr("stroke", "black")
+
+    svg
+    .append("line")
+      .attr("y1", center-height/2)
+      .attr("y2", center+height/2)
+      .attr("x1", x(median_all) + offset)
+      .attr("x2", x(median_all) + offset)
+      .attr("id", "j")
+      .attr("stroke", "black")
+
+    svg
+    .append("line")
+      .attr("y1", center-height/2)
+      .attr("y2", center+height/2)
+      .attr("x1", x(max_all) + offset)
+      .attr("x2", x(max_all) + offset)
+      .attr("id", "k")
+      .attr("stroke", "black")
+
+  });
+
+  svg.select("#changed").remove();
+  svg.select("#h").remove();
+  svg.select("#i").remove();
+  svg.select("#j").remove();
+  svg.select("#k").remove();
+
+
+
 }
+
+
+// Box for Box Plot
+var svg = d3.select("#chart1")
+    .append("svg")
+      .attr("width", mapZWidth + 75)
+      .attr("height", 200)
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr("transform",
+            "translate(" + 2 + "," + 2 + ")");
+
+svg.append('rect')
+  .attr('x', 0)
+  .attr('y', 0)
+  .attr('height', 200)
+  .attr('width', mapZWidth + 75) // 420
+  .style('stroke', mapBorderColor)
+  .style('fill', 'none')
+  .style('stroke-width', mapBorderW);
+
+// axis for box plot
+var x = d3.scaleLinear()
+  .domain([600,2000])
+  .range([0, 420]);
+  //.attr("transform", "translate(0, 250)");
+
+svg.append("g")
+     .attr("transform", "translate(40, 180)")
+     .call(d3.axisTop(x));
+
+
 
 // ZOOMED MAP MOUSE EVENTS /////////////////////////////////////////////////////
 let zMouseOver = function(d) { // Highlight school on mouseover
