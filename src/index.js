@@ -158,6 +158,9 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
       
     });
 
+    if (sat_all.length === 0) // This is for if the empty area is selected.
+      sat_all.push(0);
+
     sat_all.sort(function(a, b){return a-b});
     console.log(sat_all); ////
     // Find q1, median and q3
@@ -183,24 +186,24 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
     var offset = 40;
     // Add the main line
     svg
-    .append("line")
+    .select("#h")
+      .transition()
       .attr("y1", center)
       .attr("y2", center)
       .attr("x1", x(min_all) + offset)
       .attr("x2", x(max_all) + offset)
-      .attr("id", "h")
       .attr("stroke", "black")
 
     // Show the box
 
     svg
-    .append("rect")
+    .select("#changed")
+      .transition()
       .attr("y", center - height/2)
       .attr("x", x(q1_all) + offset)
       .attr("height", height)
       .attr("width", (x(q3_all)-x(q1_all)) )
       .attr("stroke", "black")
-      .attr("id", "changed")
       .style("fill", "#69b3a2")
 
     // show median, min and max horizontal lines
@@ -216,46 +219,47 @@ let overviewMouseClick = function(d) { //De/select SD on mouse click
     //   .attr("stroke", "black");
 
     svg
-    .append("line")
+    .select("#i")
+      .transition()
       .attr("y1", center-height/2)
       .attr("y2", center+height/2)
       .attr("x1", x(min_all) + offset)
       .attr("x2", x(min_all) + offset)
-      .attr("id", "i")
       .attr("stroke", "black")
 
     svg
-    .append("line")
+    .select("#j")
+      .transition()
       .attr("y1", center-height/2)
       .attr("y2", center+height/2)
       .attr("x1", x(median_all) + offset)
       .attr("x2", x(median_all) + offset)
-      .attr("id", "j")
       .attr("stroke", "black")
 
     svg
-    .append("line")
+    .select("#k")
+      .transition()
       .attr("y1", center-height/2)
       .attr("y2", center+height/2)
       .attr("x1", x(max_all) + offset)
       .attr("x2", x(max_all) + offset)
-      .attr("id", "k")
       .attr("stroke", "black")
 
   });
 
-  svg.select("#changed").remove();
-  svg.select("#h").remove();
-  svg.select("#i").remove();
-  svg.select("#j").remove();
-  svg.select("#k").remove();
+  // svg.select("#changed").remove();
+  // svg.select("#h").remove();
+  // svg.select("#i").remove();
+  // svg.select("#j").remove();
+  // svg.select("#k").remove();
 
 
 
 }
 
 
-// Box for Box Plot
+// SECTION FOR BOX PLOT ////////////////////////////
+
 var svg = d3.select("#chart1")
     .append("svg")
       .attr("width", mapZWidth + 75)
@@ -283,6 +287,26 @@ var x = d3.scaleLinear()
 svg.append("g")
      .attr("transform", "translate(40, 180)")
      .call(d3.axisTop(x));
+
+svg
+.append("line")
+  .attr("id", "h")
+ 
+svg
+.append("rect")
+  .attr("id", "changed")
+ 
+svg
+.append("line")
+  .attr("id", "i")
+
+svg
+.append("line")
+  .attr("id", "j")
+
+svg
+.append("line")
+  .attr("id", "k")
 
 
 
